@@ -1,0 +1,690 @@
+{% extends '@nucleus/partials/particle.html.twig' %}
+
+{# ============================================================
+   Zmienne globalne — {% set %} poza blokami jest OK w extends,
+   {% try %} NIE jest (może produkować output) — menu ładujemy
+   wewnątrz {% block particle %}.
+   ============================================================ #}
+{% set expand_bp    = particle.expand_bp|default('lg') %}
+{% set offcanvas_id = 'bs-nav-' ~ id %}
+{% set oc_side      = particle.offcanvas_side|default('start') %}
+{% set logo_url     = url(particle.logo_url)|default(gantry.siteUrl()) %}
+{% set has_logo     = particle.logo_image or particle.logo_text or particle.mobile_logo_image %}
+{% set sticky_class      = particle.sticky|default('') %}
+{% set nav_shadow        = particle.nav_shadow|default(false) %}
+{% set logo_shrink       = particle.logo_shrink|default(false) %}
+{% set logo_shrink_h     = particle.logo_shrink_height|default('30px') %}
+{% set social_items   = particle.social_items|default([]) %}
+{% set r_social_color = particle.social_color|default('') %}
+{% set nav_align     = particle.nav_align|default('end') %}
+{% set nav_margin    = nav_align == 'start' ? 'me-auto' : (nav_align == 'center' ? 'mx-auto' : 'ms-auto') %}
+{% set nav_constrained = particle.nav_container|default('fluid') == 'gantry' %}
+{# Breakpointy z Gantry config — używane tylko gdy nav_constrained = true #}
+{% set bp_ld = gantry.config.get('styles.breakpoints.large-desktop-container')|default('75rem') %}
+{% set bp_d  = gantry.config.get('styles.breakpoints.desktop-container')|default('60rem') %}
+{% set bp_t  = gantry.config.get('styles.breakpoints.tablet-container')|default('48rem') %}
+{% set bp_m  = gantry.config.get('styles.breakpoints.large-mobile-container')|default('30rem') %}
+{# --- Kolory: styl szablonu jako default, particle admin jako override --- #}
+{% set _s_color      = gantry.config.get('styles.navigation.text-color')|default('') %}
+{% set _s_bg         = gantry.config.get('styles.navigation.background')|default('') %}
+{# Offcanvas Styles z konfiguracji szablonu (Styles → Offcanvas Styles) #}
+{% set _oc_bg        = gantry.config.get('styles.offcanvas.background')|default('') %}
+{% set _oc_color     = gantry.config.get('styles.offcanvas.text-color')|default('') %}
+{% set _oc_width     = gantry.config.get('styles.offcanvas.width')|default('') %}
+{% set r_color       = particle.nav_color       ?: _s_color %}
+{% set r_hover_color = particle.nav_hover_color ?: _s_color %}
+{% set r_scroll_bg   = particle.scroll_bg|default('') %}
+{% set r_dropdown_bg = particle.dropdown_bg     ?: '' %}
+{% set r_oc_bg       = particle.offcanvas_bg    ?: _oc_bg %}
+{# --- Typografia --- #}
+{# input.fonts zapisuje jako: Bad+Script&subset=cyrillic,latin; lub family=Bad+Script&subset=... #}
+{% set _font_raw     = particle.nav_font_family|default('')|replace({';': ''})|trim %}
+{% set r_font_family = '' %}
+{% set r_font_gurl   = '' %}
+{% if _font_raw %}
+    {# Usuń ewentualny prefix family= #}
+    {% set _font_qs = _font_raw|replace({'family=': ''}) %}
+    {# Nazwa fontu = część przed pierwszym & lub całość, zamień + na spację #}
+    {% set _font_name = _font_qs|split('&')|first|replace({'+': ' '})|trim %}
+    {% set r_font_family = "'" ~ _font_name ~ "', sans-serif" %}
+    {% set r_font_gurl   = 'https://fonts.googleapis.com/css?' ~ (_font_raw starts with 'family=' ? '' : 'family=') ~ _font_raw ~ '&display=swap' %}
+{% endif %}
+{% set r_font_size      = particle.nav_font_size|default('') %}
+{% set r_font_weight    = particle.nav_font_weight|default('') %}
+{% set r_text_transform = particle.nav_text_transform|default('') %}
+{% set r_letter_spacing = particle.nav_letter_spacing|default('') %}
+{% set r_item_gap       = particle.nav_item_gap|default('') %}
+{% set r_link_px        = particle.nav_link_padding_x|default('') %}
+{% set r_link_py        = particle.nav_link_padding_y|default('') %}
+{% set r_dd_font_size   = particle.dropdown_font_size|default('') %}
+{% set r_dd_item_py     = particle.dropdown_item_padding_y|default('') %}
+{% set r_dd_hover_bg    = particle.dropdown_hover_bg|default('') %}
+{% set r_dd_hover_color = particle.dropdown_hover_color|default('') %}
+
+
+{# Makra i import — dozwolone poza blokami #}
+{% import _self as macro %}
+
+{# ============================================================
+   MAKRA
+   ============================================================ #}
+
+{# ---------- displayTitle: tytuł + opcjonalny podtytuł ---------- #}
+{% macro displayTitle(item) %}
+    {% if not item.icon_only or not (item.image or item.icon) %}
+        {% if item.subtitle %}
+            <span>{{ item.title }}<small class="d-block opacity-75 fw-normal lh-1">{{ item.subtitle }}</small></span>
+        {% else %}
+            {{- item.title -}}
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{# ---------- linkAttrs: wspólne atrybuty dla każdego <a> ---------- #}
+{% macro linkAttrs(item, context) %}
+    {%- if item.anchor_class %} class="{{ item.anchor_class }}"{% endif %}
+    {%- if item.icon_only or item.link_title %} title="{{ (item.link_title|default(item.title))|e }}"{% endif %}
+    {%- if item.icon_only and (item.image or item.icon) %} aria-label="{{ item.title|e }}"{% endif %}
+    {%- if item.target != '_self' or context.particle.forceTarget %} target="{{ item.target|e }}"{% endif %}
+{%- endmacro %}
+
+{# ---------- linkContent: ikona/obrazek + tytuł ---------- #}
+{# Obrazki menu mają loading="lazy" — mogą być poza widokiem (sticky, długie menu) #}
+{% macro linkContent(item) %}
+    {% import _self as self %}
+    {% if item.image %}
+        <img src="{{ url(item.image)|e }}"
+             alt="{{ item.title|e }}"
+             loading="lazy"
+             decoding="async">
+    {% elseif item.icon %}
+        <span class="{{ item.icon|e }}" aria-hidden="true"></span>
+    {% endif %}
+    {{- self.displayTitle(item) -}}
+{% endmacro %}
+
+{% macro desktopItem(item, menu, context) %}
+    {% import _self as self %}
+    {% if item.type == 'particle' and not item.options.particle.enabled %}{% set enabled = 0 %}{% endif %}
+    {% if item.visible and item.enabled and enabled|default(1) %}
+
+        {% if item.type == 'separator' or (item.type == 'heading' and not item.url) %}
+            {# separator i nagłówek bez URL w poziomym navbar — pomijamy (jak natywna cząstka Gantry) #}
+
+        {% elseif item.children|length and not item.dropdown_hide|default(false) %}
+            {% set active = menu.isActive(item) %}
+            <li class="nav-item dropdown d-flex align-items-center{% if active %} active{% endif %}{% if item.class %} {{ item.class }}{% endif %}">
+                {% if item.url %}
+                    <a class="nav-link pe-1{% if active %} active{% endif %}"
+                       href="{{ item.url ~ item.hash }}"
+                       {% if active %}aria-current="page"{% endif %}
+                       {{- self.linkAttrs(item, context)|raw }}>
+                        {{ self.linkContent(item) }}
+                    </a>
+                    <button type="button"
+                            class="nav-link px-1 dropdown-toggle dropdown-toggle-split border-0 bg-transparent shadow-none"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            aria-label="Otwórz podmenu {{ item.title|e }}">
+                        <span class="visually-hidden">Podmenu</span>
+                    </button>
+                {% else %}
+                    <a class="nav-link dropdown-toggle{% if active %} active{% endif %}"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false"
+                       {{- self.linkAttrs(item, context)|raw }}>
+                        {{ self.linkContent(item) }}
+                    </a>
+                {% endif %}
+                <ul class="dropdown-menu">
+                    {{ self.desktopSubItems(item.children, menu, context) }}
+                </ul>
+            </li>
+
+        {% else %}
+            {% set active = menu.isActive(item) %}
+            <li class="nav-item{% if active %} active{% endif %}{% if item.class %} {{ item.class }}{% endif %}">
+                <a class="nav-link{% if active %} active{% endif %}"
+                   href="{{ item.url ? item.url ~ item.hash : '#' }}"
+                   {% if active %}aria-current="page"{% endif %}
+                   {{- self.linkAttrs(item, context)|raw }}>
+                    {{ self.linkContent(item) }}
+                </a>
+            </li>
+        {% endif %}
+
+    {% endif %}
+{% endmacro %}
+
+{% macro desktopItems(items, menu, context) %}
+    {% import _self as self %}
+    {% for item in items %}
+        {{ self.desktopItem(item, menu, context) }}
+    {% endfor %}
+{% endmacro %}
+
+{% macro desktopSubItems(items, menu, context) %}
+    {% import _self as self %}
+    {% for item in items %}
+        {% if item.type == 'particle' and not item.options.particle.enabled %}{% set enabled = 0 %}{% endif %}
+        {% if item.visible and item.enabled and enabled|default(1) %}
+
+            {% if item.type == 'separator' %}
+                <li><hr class="dropdown-divider"></li>
+
+            {% elseif item.type == 'heading' and not item.url %}
+                <li><h6 class="dropdown-header">{{ self.linkContent(item) }}</h6></li>
+
+            {% elseif item.children|length and not item.dropdown_hide|default(false) %}
+                {% set active = menu.isActive(item) %}
+                <li class="dropdown-submenu{% if item.class %} {{ item.class }}{% endif %}">
+                    <a class="dropdown-item dropdown-toggle{% if active %} active{% endif %}"
+                       href="{{ item.url ? item.url ~ item.hash : '#' }}"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false"
+                       {{- self.linkAttrs(item, context)|raw }}>
+                        {{ self.linkContent(item) }}
+                    </a>
+                    <ul class="dropdown-menu">
+                        {{ self.desktopSubItems(item.children, menu, context) }}
+                    </ul>
+                </li>
+
+            {% else %}
+                {% set active = menu.isActive(item) %}
+                <li class="{% if item.class %}{{ item.class }}{% endif %}">
+                    <a class="dropdown-item{% if active %} active{% endif %}"
+                       href="{{ item.url ? item.url ~ item.hash : '#' }}"
+                       {% if active %}aria-current="page"{% endif %}
+                       {{- self.linkAttrs(item, context)|raw }}>
+                        {{ self.linkContent(item) }}
+                    </a>
+                </li>
+            {% endif %}
+
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+{% macro mobileItems(items, menu, context, depth) %}
+    {% import _self as self %}
+    {% set depth = depth|default(0) %}
+    {% for item in items %}
+        {% if item.type == 'particle' and not item.options.particle.enabled %}{% set enabled = 0 %}{% endif %}
+        {% if item.visible and item.enabled and enabled|default(1) %}
+
+            {% if item.type == 'separator' %}
+                <li class="nav-item"><hr class="my-1 opacity-25"></li>
+
+            {% elseif item.type == 'heading' and not item.url %}
+                <li class="nav-item">
+                    <span class="nav-link fw-semibold text-muted small text-uppercase">
+                        {{ self.linkContent(item) }}
+                    </span>
+                </li>
+
+            {% elseif item.children|length and not item.dropdown_hide|default(false) %}
+                {% set active  = menu.isActive(item) %}
+                {% set coll_id = 'mobile-sub-' ~ item.id %}
+                <li class="nav-item{% if item.class %} {{ item.class }}{% endif %}">
+                    <div class="d-flex align-items-center">
+                        {% if item.url %}
+                            <a class="nav-link flex-grow-1{% if active %} active{% endif %}"
+                               href="{{ item.url ~ item.hash }}"
+                               {% if active %}aria-current="page"{% endif %}
+                               {{- self.linkAttrs(item, context)|raw }}>
+                                {{ self.linkContent(item) }}
+                            </a>
+                        {% else %}
+                            <span class="nav-link flex-grow-1{% if active %} active{% endif %}">
+                                {{ self.linkContent(item) }}
+                            </span>
+                        {% endif %}
+                        <button type="button"
+                                class="btn btn-link nav-link py-0 px-2"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#{{ coll_id }}"
+                                aria-expanded="{{ active ? 'true' : 'false' }}"
+                                aria-controls="{{ coll_id }}"
+                                aria-label="Otwórz podmenu {{ item.title|e }}">
+                            <span class="fa fa-chevron-down" style="font-size:.75em" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div id="{{ coll_id }}" class="collapse{% if active %} show{% endif %}">
+                        <ul class="nav flex-column ps-3">
+                            {{ self.mobileItems(item.children, menu, context, depth + 1) }}
+                        </ul>
+                    </div>
+                </li>
+
+            {% else %}
+                {% set active = menu.isActive(item) %}
+                <li class="nav-item{% if item.class %} {{ item.class }}{% endif %}">
+                    <a class="nav-link{% if active %} active{% endif %}"
+                       href="{{ item.url ? item.url ~ item.hash : '#' }}"
+                       {% if active %}aria-current="page"{% endif %}
+                       {{- self.linkAttrs(item, context)|raw }}>
+                        {{ self.linkContent(item) }}
+                    </a>
+                </li>
+            {% endif %}
+
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+{# ============================================================
+   Style inline
+   ============================================================ #}
+{% block stylesheets %}
+{% if particle.enabled %}
+<link id="bs5-vendor-css" rel="stylesheet" href="{{ gantry.siteUrl() }}media/vendor/bootstrap/css/bootstrap.min.css">
+<style>
+#{{ id }}-particle {
+    --bs-navbar-color: {{ r_color ?: 'currentColor' }};
+    --bs-navbar-hover-color: {{ r_hover_color ?: 'currentColor' }};
+    --bs-navbar-active-color: {{ r_hover_color ?: 'currentColor' }};
+    --bs-navbar-brand-color: {{ r_color ?: 'currentColor' }};
+    --bs-navbar-brand-hover-color: {{ r_hover_color ?: 'currentColor' }};
+    --bs-navbar-toggler-border-color: rgba(128,128,128,0.3);
+{% if r_link_px %}    --bs-navbar-nav-link-padding-x: {{ r_link_px|e }};
+{% endif %}
+{% if r_dd_font_size %}    --bs-dropdown-font-size: {{ r_dd_font_size|e }};
+{% endif %}
+{% if r_dd_item_py %}    --bs-dropdown-item-padding-y: {{ r_dd_item_py|e }};
+{% endif %}
+}
+{# font-family, font-weight, text-transform, letter-spacing — navbar + dropdown + offcanvas #}
+{% set _has_global_typo = r_font_family or r_font_weight or r_text_transform or r_letter_spacing %}
+{% if _has_global_typo %}
+#{{ id }}-particle .nav-link,
+#{{ id }}-particle .dropdown-item,
+#{{ offcanvas_id }} .nav-link {
+{% if r_font_family %}    font-family: {{ r_font_family|raw }};
+{% endif %}
+{% if r_font_weight %}    font-weight: {{ r_font_weight|e }};
+{% endif %}
+{% if r_text_transform %}    text-transform: {{ r_text_transform|e }};
+{% endif %}
+{% if r_letter_spacing %}    letter-spacing: {{ r_letter_spacing|e }};
+{% endif %}
+}
+{% endif %}
+{# font-size i padding-y — tylko górny poziom navbar (dropdown ma osobne ustawienia) #}
+{% if r_font_size or r_link_py %}
+#{{ id }}-particle .navbar-nav > .nav-item > .nav-link,
+#{{ id }}-particle .navbar-nav > .nav-item > button.nav-link {
+{% if r_font_size %}    font-size: {{ r_font_size|e }};
+{% endif %}
+{% if r_link_py %}    padding-top: {{ r_link_py|e }}; padding-bottom: {{ r_link_py|e }};
+{% endif %}
+}
+{% endif %}
+{% if r_item_gap %}
+#{{ id }}-particle .navbar-nav { gap: {{ r_item_gap|e }}; }
+{% endif %}
+#{{ offcanvas_id }} { position: fixed; overflow-x: hidden; }
+#{{ offcanvas_id }} .nav-link { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+#{{ offcanvas_id }} .d-flex > .nav-link { min-width: 0; }
+#{{ offcanvas_id }} .oc-close-btn { opacity: 0.8; }
+#{{ offcanvas_id }} .oc-close-btn:hover { opacity: 1; }
+{% if r_social_color %}
+#{{ id }}-particle .g-nav-social .nav-link { color: {{ r_social_color|e }}; }
+#{{ offcanvas_id }} .g-nav-social .nav-link { color: {{ r_social_color|e }}; }
+{% endif %}
+{% if r_color or r_hover_color or r_dropdown_bg or r_dd_hover_bg or r_dd_hover_color %}
+#{{ id }}-particle .dropdown-menu {
+{% if r_dropdown_bg %}    --bs-dropdown-bg: {{ r_dropdown_bg|e }};
+{% endif %}
+{% if r_color %}    --bs-dropdown-color: {{ r_color|e }};
+    --bs-dropdown-link-color: {{ r_color|e }};
+{% endif %}
+{% if r_hover_color or r_dd_hover_color %}    --bs-dropdown-link-hover-color: {{ (r_dd_hover_color ?: r_hover_color)|e }};
+    --bs-dropdown-link-active-color: {{ (r_dd_hover_color ?: r_hover_color)|e }};
+{% endif %}
+    --bs-dropdown-link-hover-bg: {{ r_dd_hover_bg ?: 'transparent' }};
+    --bs-dropdown-link-active-bg: {{ r_dd_hover_bg ?: 'transparent' }};
+}
+{% endif %}
+{# Nadpisanie starego selektora Helium SCSS (Bootstrap 3) — tylko gdy user jawnie ustawił kolor.
+   Bez tego Helium kompiluje Accent Color 2 jako stały background: #8f4dae na hover. #}
+{% if r_dd_hover_bg %}
+#{{ id }}-particle .dropdown-menu > li > a:hover,
+#{{ id }}-particle .dropdown-menu > li > a:focus,
+#{{ id }}-particle .dropdown-submenu:hover > a,
+#{{ id }}-particle .dropdown-submenu:focus > a {
+    background: {{ r_dd_hover_bg|e }} !important;
+{% if r_dd_hover_color or r_hover_color %}    color: {{ (r_dd_hover_color ?: r_hover_color)|e }} !important;
+{% endif %}
+}
+{% endif %}
+{% if r_oc_bg or _oc_width %}
+#{{ offcanvas_id }} {
+{% if r_oc_bg %}    background-color: {{ r_oc_bg|e }};
+{% endif %}
+{% if _oc_width %}    --bs-offcanvas-width: {{ _oc_width|e }};
+{% endif %}
+}
+{% endif %}
+{% if _oc_color %}
+#{{ offcanvas_id }} .nav-link,
+#{{ offcanvas_id }} .navbar-brand,
+#{{ offcanvas_id }} .oc-close-btn { color: {{ _oc_color|e }}; }
+{% endif %}
+{% if sticky_class == 'sticky-top' or sticky_class == 'scroll-up' %}
+#{{ id }}-particle.navbar-is-sticky {
+    position: fixed; top: 0; left: 0; width: 100%; z-index: 1030;
+    background-color: {{ _s_bg ?: '#ffffff' }};
+{% if nav_shadow %}    box-shadow: 0 2px 6px rgba(0,0,0,.12);{% endif %}
+}
+{% if sticky_class == 'scroll-up' %}
+#{{ id }}-particle.navbar-is-sticky { transition: transform 0.3s ease{% if r_scroll_bg %}, background-color 0.3s ease{% endif %}; }
+#{{ id }}-particle.navbar-is-sticky.navbar-hidden { transform: translateY(-100%); }
+{% endif %}
+{% endif %}
+{% if r_scroll_bg %}
+{% if sticky_class != 'scroll-up' %}
+#{{ id }}-particle.navbar-is-sticky { transition: background-color 0.3s ease; }
+{% endif %}
+#{{ id }}-particle.navbar-is-sticky.navbar-scrolled { background-color: {{ r_scroll_bg|e }}; }
+{% endif %}
+{% if logo_shrink %}
+#{{ id }}-particle .navbar-brand img { transition: max-height 0.3s ease; }
+#{{ id }}-particle.navbar-scrolled .navbar-brand img { max-height: {{ logo_shrink_h|e }} !important; }
+{% endif %}
+{% if nav_constrained %}
+#{{ id }}-particle .container-fluid { max-width: {{ bp_ld|e }}; }
+@media (max-width: {{ bp_ld|e }}) { #{{ id }}-particle .container-fluid { max-width: {{ bp_d|e }}; } }
+@media (max-width: {{ bp_d|e }})  { #{{ id }}-particle .container-fluid { max-width: {{ bp_t|e }}; } }
+@media (max-width: {{ bp_t|e }})  { #{{ id }}-particle .container-fluid { max-width: {{ bp_m|e }}; } }
+@media (max-width: {{ bp_m|e }})  { #{{ id }}-particle .container-fluid { max-width: 100%; } }
+{% endif %}
+</style>
+{% endif %}
+{% endblock %}
+
+{# ============================================================
+   JS
+   ============================================================ #}
+{% block javascript_footer %}
+{% if particle.enabled %}
+<script>
+(function () {
+    var root = (typeof Joomla !== 'undefined' && Joomla.getOptions)
+        ? (Joomla.getOptions('system.paths') || {}).root || ''
+        : '';
+
+    var base = root + '/media/vendor/bootstrap/js/';
+    /* Tylko 3 potrzebne komponenty: offcanvas, dropdown (z Popper), collapse */
+    /* data-bs-* atrybuty działają automatycznie po załadowaniu modułów */
+    import(base + 'offcanvas.min.js');
+    import(base + 'dropdown.min.js');
+    import(base + 'collapse.min.js');
+}());
+{% if sticky_class == 'sticky-top' or sticky_class == 'scroll-up' or logo_shrink %}
+(function () {
+    var nav = document.getElementById('{{ id }}-particle');
+    if (!nav) return;
+    var bpMap = { sm: 576, md: 768, lg: 992, xl: 1200, xxl: 1400 };
+    var expandAt = bpMap['{{ expand_bp }}'] || 992;
+    function isDesktop() { return window.innerWidth >= expandAt; }
+    function reset() {
+        nav.classList.remove('navbar-is-sticky', 'navbar-hidden', 'navbar-scrolled');
+        if (ph) ph.style.display = 'none';
+    }
+    var ph = null;
+    {% if sticky_class == 'sticky-top' or sticky_class == 'scroll-up' %}
+    ph = document.createElement('div');
+    ph.setAttribute('aria-hidden', 'true');
+    ph.style.display = 'none';
+    nav.parentNode.insertBefore(ph, nav);
+    {% endif %}
+
+    {% if sticky_class == 'sticky-top' %}
+    var navTop = 0;
+    function recalc() {
+        if (!nav.classList.contains('navbar-is-sticky')) {
+            navTop = nav.getBoundingClientRect().top + window.pageYOffset;
+        }
+        ph.style.height = nav.offsetHeight + 'px';
+    }
+    function update() {
+        if (!isDesktop()) { reset(); return; }
+        var y = window.pageYOffset;
+        var stuck = y >= navTop;
+        if (stuck !== nav.classList.contains('navbar-is-sticky')) {
+            nav.classList.toggle('navbar-is-sticky', stuck);
+            ph.style.display = stuck ? 'block' : 'none';
+        }
+        nav.classList.toggle('navbar-scrolled', stuck);
+    }
+    window.addEventListener('resize', function() { recalc(); update(); }, { passive: true });
+    window.addEventListener('load',   function() { recalc(); update(); }, { passive: true });
+    recalc(); update();
+    {% endif %}
+
+    {% if sticky_class == 'scroll-up' %}
+    var lastY = window.pageYOffset;
+    function recalc() { ph.style.height = nav.offsetHeight + 'px'; }
+    function update() {
+        if (!isDesktop()) { reset(); return; }
+        var y = window.pageYOffset;
+        var delta = y - lastY;
+        if (Math.abs(delta) < 5) return;
+        if (y > 80) {
+            nav.classList.toggle('navbar-hidden', delta > 0);
+        } else {
+            nav.classList.remove('navbar-hidden');
+        }
+        lastY = y;
+        nav.classList.toggle('navbar-scrolled', y > 80);
+    }
+    function initScrollUp() {
+        if (isDesktop()) {
+            nav.classList.add('navbar-is-sticky');
+            ph.style.display = 'block';
+            recalc();
+        }
+    }
+    window.addEventListener('resize', function() { isDesktop() ? initScrollUp() : reset(); }, { passive: true });
+    window.addEventListener('load',   function() { initScrollUp(); }, { passive: true });
+    initScrollUp(); update();
+    {% endif %}
+
+    {% if logo_shrink and sticky_class != 'sticky-top' and sticky_class != 'scroll-up' %}
+    function update() {
+        if (!isDesktop()) { nav.classList.remove('navbar-scrolled'); return; }
+        nav.classList.toggle('navbar-scrolled', window.pageYOffset > 80);
+    }
+    update();
+    {% endif %}
+
+    window.addEventListener('scroll', update, { passive: true });
+}());
+{% endif %}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block particle %}
+{% if particle.enabled %}
+
+{# Ładowanie menu — {% try %} MUSI być wewnątrz bloku #}
+{% try %}
+    {% set menu = gantry.menu.instance(particle) %}
+{% catch %}
+    <div class="alert alert-danger" role="alert">{{ e.getMessage }}</div>
+{% endtry %}
+
+{# ---------- Navbar desktop ---------- #}
+<nav id="{{ id }}-particle"
+     class="navbar navbar-expand-{{ expand_bp }} align-items-stretch{% if sticky_class == 'fixed-top' %} fixed-top{% endif %}{% if particle.class %} {{ particle.class }}{% endif %}"
+     aria-label="Nawigacja główna">
+    <div class="container-fluid">
+
+        {# Logo / Brand #}
+        {% if has_logo %}
+        <a class="navbar-brand"
+           href="{{ logo_url }}"
+           {% if logo_url == gantry.siteUrl() %}rel="home"{% endif %}
+           {% if particle.logo_text %}aria-label="{{ particle.logo_text|striptags|e }}"{% endif %}>
+            {% if particle.logo_image and particle.mobile_logo_image %}
+                {# Dwa loga: główne na desktop, mobilne poniżej breakpointu #}
+                <img src="{{ url(particle.logo_image)|e }}"
+                     alt="{{ particle.logo_text|default('Logo') }}"
+                     class="d-none d-{{ expand_bp }}-block"
+                     fetchpriority="high"
+                     decoding="async"
+                     {% if particle.logo_height %}style="max-height:{{ particle.logo_height }};width:auto"{% else %}style="height:auto;width:auto"{% endif %}>
+                <img src="{{ url(particle.mobile_logo_image)|e }}"
+                     alt="{{ particle.logo_text|default('Logo') }}"
+                     class="d-{{ expand_bp }}-none"
+                     fetchpriority="high"
+                     decoding="async"
+                     {% if particle.mobile_logo_height %}style="max-height:{{ particle.mobile_logo_height }};width:auto"{% else %}style="height:auto;width:auto"{% endif %}>
+            {% elseif particle.mobile_logo_image %}
+                <img src="{{ url(particle.mobile_logo_image)|e }}"
+                     alt="{{ particle.logo_text|default('Logo') }}"
+                     fetchpriority="high"
+                     decoding="async"
+                     {% if particle.mobile_logo_height %}style="max-height:{{ particle.mobile_logo_height }};width:auto"{% else %}style="height:auto;width:auto"{% endif %}>
+            {% elseif particle.logo_image %}
+                <img src="{{ url(particle.logo_image)|e }}"
+                     alt="{{ particle.logo_text|default('Logo') }}"
+                     fetchpriority="high"
+                     decoding="async"
+                     {% if particle.logo_height %}style="max-height:{{ particle.logo_height }};width:auto"{% else %}style="height:auto;width:auto"{% endif %}>
+            {% else %}
+                {{ particle.logo_text|raw }}
+            {% endif %}
+        </a>
+        {% endif %}
+
+        {# Hamburger → otwiera offcanvas na mobile #}
+        <button type="button"
+                class="navbar-toggler"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#{{ offcanvas_id }}"
+                aria-controls="{{ offcanvas_id }}"
+                aria-expanded="false"
+                aria-label="Otwórz menu">
+            {% if particle.toggle_image %}
+                <img src="{{ url(particle.toggle_image)|e }}"
+                     alt=""
+                     role="presentation"
+                     decoding="async"
+                     style="height:{{ particle.toggle_image_height|default('24px') }};width:auto;display:block;">
+            {% elseif particle.toggle_icon %}
+                <span class="{{ particle.toggle_icon|e }}" aria-hidden="true"></span>
+            {% else %}
+                <span class="navbar-toggler-icon" aria-hidden="true"></span>
+            {% endif %}
+            {% if particle.toggle_text %}
+                <span class="ms-1">{{ particle.toggle_text }}</span>
+            {% endif %}
+        </button>
+
+        {# Desktop nav (widoczna ≥ expand_bp, ukryta na mobile przez Bootstrap) #}
+        {% if menu is defined and menu.root.count() %}
+        <div class="collapse navbar-collapse align-items-stretch">
+            <ul class="navbar-nav {{ nav_margin }}">
+                {{ macro.desktopItems(menu.root, menu, _context) }}
+            </ul>
+            {% if social_items|length and particle.social_in_navbar|default(true) %}
+            <ul class="navbar-nav ms-3 flex-row gap-1 g-nav-social" aria-label="Social media">
+                {% for s in social_items %}
+                {% set s_icon = s.icon|default('') %}
+                {% if s.url and s_icon and s.label %}
+                <li class="nav-item">
+                    <a class="nav-link px-1"
+                       href="{{ s.url|e }}"
+                       aria-label="{{ s.label|e }}"
+                       {% if s.target_blank|default(true) %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                        <span class="{{ s_icon|e }}" aria-hidden="true"></span>
+                    </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div>
+</nav>
+
+{# ---------- Offcanvas (mobile) ---------- #}
+<div class="offcanvas offcanvas-{{ oc_side }}"
+     id="{{ offcanvas_id }}"
+     tabindex="-1"
+     data-bs-theme="{{ particle.offcanvas_color_scheme|default('light') }}"
+     aria-labelledby="{{ offcanvas_id }}-label">
+
+    <div class="offcanvas-header">
+
+        {# Ukryty tytuł wymagany przez Bootstrap a11y: aria-labelledby musi wskazywać
+           na element z offcanvas-title. Logo jest treścią wizualną, nie tytułem dialogu. #}
+        <h2 id="{{ offcanvas_id }}-label" class="offcanvas-title visually-hidden">Menu nawigacyjne</h2>
+
+        {% if particle.offcanvas_show_logo|default(true) and has_logo %}
+        <a class="navbar-brand"
+           href="{{ logo_url }}"
+           {% if logo_url == gantry.siteUrl() %}rel="home"{% endif %}
+           aria-label="{{ particle.logo_text ? particle.logo_text|striptags|e : 'Strona główna' }}">
+            {% if particle.mobile_logo_image %}
+                <img src="{{ url(particle.mobile_logo_image)|e }}"
+                     alt="{{ particle.logo_text|default('Logo') }}"
+                     decoding="async"
+                     {% if particle.mobile_logo_height %}style="max-height:{{ particle.mobile_logo_height }};width:auto"{% else %}style="height:auto;width:auto"{% endif %}>
+            {% elseif particle.logo_image %}
+                <img src="{{ url(particle.logo_image)|e }}"
+                     alt="{{ particle.logo_text|default('Logo') }}"
+                     decoding="async"
+                     {% if particle.logo_height %}style="max-height:{{ particle.logo_height }};width:auto"{% else %}style="height:auto;width:auto"{% endif %}>
+            {% else %}
+                {{ particle.logo_text|raw }}
+            {% endif %}
+        </a>
+        {% endif %}
+
+        {% if particle.offcanvas_close_icon %}
+        <button type="button" class="btn btn-link p-0 ms-auto oc-close-btn" data-bs-dismiss="offcanvas" aria-label="Zamknij menu" style="color:inherit">
+            <span class="{{ particle.offcanvas_close_icon|e }}" aria-hidden="true"></span>
+        </button>
+        {% else %}
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="offcanvas" aria-label="Zamknij menu"></button>
+        {% endif %}
+    </div>
+
+    <div class="offcanvas-body d-flex flex-column">
+        {% if menu is defined and menu.root.count() %}
+        <ul class="nav flex-column">
+            {{ macro.mobileItems(menu.root, menu, _context) }}
+        </ul>
+        {% endif %}
+        {% if social_items|length and particle.social_in_offcanvas|default(true) %}
+        <ul class="nav flex-row flex-wrap gap-2 mt-auto pt-3 g-nav-social" aria-label="Social media">
+            {% for s in social_items %}
+            {% set s_icon = s.icon|default('') %}
+            {% if s.url and s_icon and s.label %}
+            <li class="nav-item">
+                <a class="nav-link px-1"
+                   href="{{ s.url|e }}"
+                   aria-label="{{ s.label|e }}"
+                   {% if s.target_blank|default(true) %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                    <span class="{{ s_icon|e }}" aria-hidden="true"></span>
+                </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endif %}
+{% endblock %}

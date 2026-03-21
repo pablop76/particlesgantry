@@ -1,0 +1,451 @@
+name: Menu Bootstrap
+description: Pełnoprawne menu Joomla z offcanvas na mobile (Bootstrap 5.3).
+type: particle
+icon: fa-bars
+
+configuration:
+  caching:
+    type: menu
+
+form:
+  overrideable: false
+  fields:
+
+    enabled:
+      type: input.checkbox
+      label: Enabled
+      description: Globalnie włącz/wyłącz cząstkę menu.
+      default: true
+
+    _tabs:
+      type: container.tabs
+      fields:
+
+        _tab_logo:
+          label: Logo
+          fields:
+
+            logo_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Logo'
+
+            logo_url:
+              type: input.text
+              label: URL Logo
+              description: Adres URL logo. Pozostaw puste aby prowadzić do strony głównej.
+
+            logo_text:
+              type: input.text
+              label: Tekst Logo
+              description: Tekst wyświetlany jeśli nie wybrano obrazka logo.
+
+            logo_image:
+              type: input.imagepicker
+              label: Obrazek Logo
+
+            logo_height:
+              type: input.text
+              label: Maksymalna wysokość
+              description: 'Np.: 50px, 3rem'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+            logo_shrink:
+              type: input.checkbox
+              label: Zmniejsz logo przy skrolu
+              description: Zmniejsza logo gdy strona jest przewinięta (działa z trybami sticky).
+              default: false
+
+            logo_shrink_height:
+              type: input.text
+              label: Wysokość po zmniejszeniu
+              description: 'Wysokość logo po zmniejszeniu. Np.: 30px, 2rem. Domyślnie 30px.'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+            mobile_logo_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Logo mobilne (opcjonalne)'
+
+            mobile_logo_image:
+              type: input.imagepicker
+              label: Obrazek Logo (mobile)
+              description: Alternatywne logo widoczne w offcanvas na małych ekranach.
+
+            mobile_logo_height:
+              type: input.text
+              label: Maksymalna wysokość (mobile)
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+        _tab_menu:
+          label: Menu
+          fields:
+
+            menu_source_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Źródło menu'
+
+            menu:
+              type: menu.list
+              label: Menu
+              description: Wybierz menu Joomla do wyświetlenia.
+              default: ''
+              selectize:
+                allowEmptyOption: true
+              options:
+                '': Użyj domyślnego menu
+                '-active-': Użyj aktywnego menu
+
+            base:
+              type: menu.item
+              label: Element bazowy
+              description: Element menu od którego rozpoczyna się renderowanie.
+              default: '/'
+              options:
+                '/': Aktywny
+
+            startLevel:
+              type: input.text
+              label: Poziom startowy
+              description: Od którego poziomu wyświetlać menu.
+              default: 1
+
+            maxLevels:
+              type: input.text
+              label: Maks. poziomów
+              description: Maksymalna głębokość menu (0 = bez limitu).
+              default: 0
+
+            forceTarget:
+              type: input.checkbox
+              label: Wymuś atrybut target
+              description: "Dodaje 'target=\"_self\"' do wszystkich linków."
+              default: 0
+
+            expand_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Breakpoint nawigacji'
+
+            expand_bp:
+              type: select.select
+              label: Rozwiń menu od
+              description: Poniżej tego breakpointu pojawia się hamburger i offcanvas.
+              default: lg
+              options:
+                sm: Small (≥576px)
+                md: Medium (≥768px)
+                lg: Large (≥992px)
+                xl: XLarge (≥1200px)
+                xxl: XXLarge (≥1400px)
+
+            toggle_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Przycisk hamburger'
+
+            toggle_text:
+              type: input.text
+              label: Tekst przycisku
+              description: Tekst obok ikony hamburgera. Pozostaw puste aby ukryć.
+              placeholder: 'Menu'
+
+            toggle_icon:
+              type: input.icon
+              label: Ikona hamburgera (opcjonalnie)
+              description: Ikona Font Awesome zamiast domyślnej ikony hamburgera. Pozostaw puste aby użyć standardowej.
+
+            toggle_image:
+              type: input.imagepicker
+              label: Obrazek hamburgera (opcjonalnie)
+              description: Własny obrazek zamiast ikony. Jeśli ustawiony, nadpisuje ikonę FA.
+
+            toggle_image_height:
+              type: input.text
+              label: Wysokość obrazka
+              description: 'Np.: 24px, 1.5rem. Domyślnie 24px.'
+              placeholder: '24px'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+        _tab_offcanvas:
+          label: Offcanvas
+          fields:
+
+            offcanvas_pos_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Pozycja panelu'
+
+            offcanvas_side:
+              type: select.select
+              label: Strona offcanvas
+              default: start
+              options:
+                start: Lewa (start)
+                end: Prawa (end)
+
+            offcanvas_logo_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Logo w offcanvas'
+
+            offcanvas_show_logo:
+              type: input.checkbox
+              label: Pokaż logo w offcanvas
+              default: true
+
+            offcanvas_close_icon:
+              type: input.icon
+              label: Ikona zamknięcia
+              description: Ikona przycisku zamknięcia offcanvas. Domyślnie fa fa-times.
+
+            offcanvas_style_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Wygląd offcanvas'
+
+            offcanvas_bg:
+              type: input.colorpicker
+              label: Kolor tła offcanvas
+
+            offcanvas_color_scheme:
+              type: select.select
+              label: Schemat kolorów
+              description: Jasny lub ciemny motyw panelu offcanvas.
+              default: light
+              options:
+                light: Jasny
+                dark: Ciemny
+
+        _tab_social:
+          label: Social Media
+          fields:
+
+            social_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Ikony social media'
+
+            social_items:
+              type: collection.list
+              array: true
+              label: Linki
+              value: label
+              ajax: true
+              overrideable: false
+              fields:
+                .label:
+                  type: input.text
+                  label: Etykieta (aria)
+                  description: Nazwa dla czytników ekranu, np. Facebook
+                .icon:
+                  type: input.icon
+                  label: Ikona
+                  default: 'fa fa-globe'
+                .url:
+                  type: input.text
+                  label: URL
+                  placeholder: 'https://facebook.com/...'
+                .target_blank:
+                  type: input.checkbox
+                  label: Otwórz w nowej karcie
+                  default: true
+
+            social_position_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Pozycja ikon'
+
+            social_in_navbar:
+              type: input.checkbox
+              label: Pokaż w navbarze (desktop)
+              default: true
+
+            social_in_offcanvas:
+              type: input.checkbox
+              label: Pokaż w offcanvas (mobile)
+              default: true
+
+            social_color:
+              type: input.colorpicker
+              label: Kolor ikon
+              description: Kolor ikon social media (navbar i offcanvas). Domyślnie dziedziczy kolor linków.
+
+        _tab_style:
+          label: Styl
+          fields:
+
+            sticky_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Przyklejanie menu'
+
+            sticky:
+              type: select.select
+              label: Tryb przyklejania
+              description: 'sticky-top: przyklejone gdy dotrze do góry. scroll-up: zawsze przyklejone, chowa się przy scrollu w dół. fixed-top: zawsze na górze (wymaga body padding).'
+              default: ''
+              options:
+                '': Brak
+                sticky-top: Sticky (przy przewijaniu)
+                scroll-up: Ukryj przy skrolu w dół
+                fixed-top: Fixed (zawsze na górze)
+
+            navbar_style_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Nawigacja desktop'
+
+            nav_container:
+              type: select.select
+              label: Szerokość kontenera
+              description: 'Pełna szerokość = 100%. Kontener szablonu = max-width wg breakpointów Gantry z Configuration → Styles → Breakpoints.'
+              default: fluid
+              options:
+                fluid: Pełna szerokość
+                gantry: Szerokość kontenera szablonu
+
+            nav_align:
+              type: select.select
+              label: Wyrównanie menu
+              description: Wyrównanie pozycji menu (bez logo i social).
+              default: end
+              options:
+                start: Lewo
+                center: Środek
+                end: Prawo
+
+            nav_shadow:
+              type: input.checkbox
+              label: Cień przy sticky
+              description: Pokaż box-shadow pod paskiem nawigacji gdy jest przyklejony.
+              default: false
+
+            scroll_bg:
+              type: input.colorpicker
+              label: Tło przy skrolu
+              description: Kolor tła paska nawigacji gdy strona jest przewinięta. Zostawienie puste = brak zmiany.
+
+            nav_color:
+              type: input.colorpicker
+              label: Kolor linków
+
+            nav_hover_color:
+              type: input.colorpicker
+              label: Kolor hover/aktywny
+
+            dropdown_bg:
+              type: input.colorpicker
+              label: Tło dropdown
+
+            typography_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Typografia linków menu'
+
+            nav_font_family:
+              type: input.fonts
+              label: Czcionka menu
+              description: Czcionka linków menu i offcanvas. Pozostaw puste aby dziedziczyć z szablonu.
+
+            nav_font_size:
+              type: input.text
+              label: Rozmiar czcionki
+              description: 'Rozmiar czcionki linków. Np.: 0.9rem, 15px'
+              placeholder: 'domyślny'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+            nav_font_weight:
+              type: select.select
+              label: Grubość czcionki
+              default: ''
+              options:
+                '': Domyślna
+                '300': Lekka (300)
+                '400': Normalna (400)
+                '500': Średnia (500)
+                '600': Semi-bold (600)
+                '700': Pogrubiona (700)
+                '800': Extra-bold (800)
+
+            nav_text_transform:
+              type: select.select
+              label: Transformacja tekstu
+              default: ''
+              options:
+                '': Brak
+                uppercase: WIELKIE LITERY
+                lowercase: małe litery
+                capitalize: Pierwsze Wielkie
+
+            nav_letter_spacing:
+              type: input.text
+              label: Rozstaw liter
+              description: 'letter-spacing. Np.: 0.08em, 1px. Przy uppercase zalecane 0.05–0.1em.'
+              placeholder: '0'
+
+            nav_item_gap:
+              type: input.text
+              label: Odstęp między pozycjami
+              description: 'Przerwa między elementami w navbar. Np.: 0.25rem, 8px'
+              placeholder: '0'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+            nav_link_padding_x:
+              type: input.text
+              label: Padding poziomy linków
+              description: 'Padding lewy i prawy każdego linku. Np.: 0.75rem, 12px'
+              placeholder: 'domyślny'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+            nav_link_padding_y:
+              type: input.text
+              label: Padding pionowy linków
+              description: 'Padding górny i dolny każdego linku (wpływa na wysokość paska).'
+              placeholder: 'domyślny'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+            dropdown_typography_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Typografia dropdown'
+
+            dropdown_font_size:
+              type: input.text
+              label: Rozmiar czcionki (dropdown)
+              description: 'Rozmiar czcionki pozycji dropdown. Np.: 0.875rem, 14px'
+              placeholder: 'domyślny'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+            dropdown_item_padding_y:
+              type: input.text
+              label: Padding pionowy pozycji
+              description: 'Padding góra/dół każdej pozycji dropdown. Np.: 0.5rem, 8px'
+              placeholder: 'domyślny'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+            dropdown_hover_bg:
+              type: input.colorpicker
+              label: Tło hover dropdown
+              description: Kolor tła pozycji dropdown przy hover i aktywnej. Domyślnie Bootstrap używa rgba(0,0,0,.04).
+
+            dropdown_hover_color:
+              type: input.colorpicker
+              label: Kolor tekstu hover dropdown
+              description: Kolor tekstu pozycji dropdown przy hover. Pozostaw puste = dziedziczy kolor hover z pola "Kolor hover/aktywny".
+
+            extra_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Dodatkowe'
+
+            class:
+              type: input.selectize
+              label: Klasy CSS
+              description: Dodatkowe klasy CSS dla elementu <nav>.
+
+    copyright:
+      type: separator.note
+      class: alert alert-success
+      content: 'Menu Bootstrap — wersja 1.0 | <a href="https://web-service.com.pl/" target="_blank">pablop76</a>'
