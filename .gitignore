@@ -1,0 +1,4 @@
+CLAUDE.md
+*.md
+!README.md
+particles_uikit/
