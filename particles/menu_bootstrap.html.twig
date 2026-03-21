@@ -281,7 +281,7 @@
    ============================================================ #}
 {% block stylesheets %}
 {% if particle.enabled %}
-<link id="bs5-vendor-css" rel="stylesheet" href="{{ gantry.siteUrl() }}media/vendor/bootstrap/css/bootstrap.min.css">
+<script>(function(){if(document.head.querySelector('link[href*="bootstrap.min.css"]'))return;var l=document.createElement('link');l.rel='stylesheet';l.href='{{ gantry.siteUrl() }}media/vendor/bootstrap/css/bootstrap.min.css';document.currentScript.parentNode.insertBefore(l,document.currentScript);}());</script>
 <style>
 #{{ id }}-particle {
     --bs-navbar-color: {{ r_color ?: 'currentColor' }};
