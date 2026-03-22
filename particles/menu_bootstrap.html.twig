@@ -122,7 +122,7 @@
                         {{ self.linkContent(item) }}
                     </a>
                     <button type="button"
-                            class="nav-link px-1 dropdown-toggle dropdown-toggle-split border-0 bg-transparent shadow-none"
+                            class="nav-link px-1 dropdown-toggle dropdown-toggle-split border-0 bg-transparent"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                             aria-label="Otwórz podmenu {{ item.title|e }}">
@@ -326,6 +326,7 @@
 {% if r_item_gap %}
 #{{ id }}-particle .navbar-nav { gap: {{ r_item_gap|e }}; }
 {% endif %}
+#{{ id }}-particle .dropdown-toggle-split:not(:focus-visible) { box-shadow: none; }
 #{{ offcanvas_id }} { position: fixed; overflow-x: hidden; }
 #{{ offcanvas_id }} .nav-link { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 #{{ offcanvas_id }} .d-flex > .nav-link { min-width: 0; }
