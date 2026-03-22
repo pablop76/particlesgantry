@@ -1,0 +1,338 @@
+{% extends '@nucleus/partials/particle.html.twig' %}
+
+{# ═══════════════════════════════════════════════════════════════════
+   Zmienne globalne — dostępne we WSZYSTKICH blokach
+   ═══════════════════════════════════════════════════════════════════ #}
+{% set gallery_id = 'glb-' ~ id %}
+
+{% set cols_xs = particle.cols_xs|default('2') %}
+{% set cols_sm = particle.cols_sm|default('2') %}
+{% set cols_md = particle.cols_md|default('3') %}
+{% set cols_lg = particle.cols_lg|default('4') %}
+{% set cols_xl = particle.cols_xl|default('4') %}
+{% set gap     = particle.gap|default(8) %}
+
+{% set aspect_ratio = particle.aspect_ratio|default('4x3') %}
+{% set img_fit      = particle.img_fit|default('cover') %}
+{% set hover_zoom   = particle.hover_zoom != false %}
+
+{% set filter_enabled = particle.filter_enabled %}
+{% set filter_style   = particle.filter_style|default('outline-secondary') %}
+{% set filter_align   = particle.filter_align|default('center') %}
+
+{% set lb_enabled  = particle.lightbox_enabled != false %}
+{% set lb_size     = particle.lb_size|default('xl') %}
+{% set lb_caption  = particle.lb_caption != false %}
+{% set lb_show_desc = particle.lb_show_desc != false %}
+
+{# Aspect ratio → padding-bottom % #}
+{% set ar_map = {'1x1': '100%', '4x3': '75%', '16x9': '56.25%', '3x4': '133.33%', 'free': null} %}
+{% set ar_padding = ar_map[aspect_ratio] %}
+
+{# ── Zbierz aktywne zdjęcia ── #}
+{% set active_items = [] %}
+{% for item in particle.items|default([]) %}
+    {% if not item.disable %}
+        {% set active_items = active_items|merge([item]) %}
+    {% endif %}
+{% endfor %}
+
+{# ── Unikalne kategorie (kolejność pierwszego wystąpienia) ── #}
+{% set categories = [] %}
+{% for item in active_items %}
+    {% if item.category %}
+        {% for cat in item.category|split(',')|map(c => c|trim) %}
+            {% if cat and cat not in categories %}
+                {% set categories = categories|merge([cat]) %}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endfor %}
+
+
+{# ═══════════════════════════════════════════════════════════════════
+   STYLESHEETS
+   ═══════════════════════════════════════════════════════════════════ #}
+{% block stylesheets %}
+{% if particle.enabled and active_items|length > 0 %}
+
+{# Bootstrap CSS — wstrzyknij tylko gdy brak na stronie #}
+<script>(function(){if(document.head.querySelector('link[href*="bootstrap.min.css"]'))return;var l=document.createElement('link');l.rel='stylesheet';l.href='{{ gantry.siteUrl() }}media/vendor/bootstrap/css/bootstrap.min.css';document.head.appendChild(l);}());</script>
+
+<style>
+/* ── Gallery Lightbox #{{ gallery_id }} ── */
+
+/* Siatka CSS Grid */
+#{{ gallery_id }} .glb-grid {
+    display: grid;
+    grid-template-columns: repeat({{ cols_xs }}, 1fr);
+    gap: {{ gap }}px;
+}
+@media (min-width: 576px)  { #{{ gallery_id }} .glb-grid { grid-template-columns: repeat({{ cols_sm }}, 1fr); } }
+@media (min-width: 768px)  { #{{ gallery_id }} .glb-grid { grid-template-columns: repeat({{ cols_md }}, 1fr); } }
+@media (min-width: 992px)  { #{{ gallery_id }} .glb-grid { grid-template-columns: repeat({{ cols_lg }}, 1fr); } }
+@media (min-width: 1200px) { #{{ gallery_id }} .glb-grid { grid-template-columns: repeat({{ cols_xl }}, 1fr); } }
+
+/* Proporcje miniatur */
+{% if ar_padding %}
+#{{ gallery_id }} .glb-thumb-wrap {
+    position: relative;
+    padding-bottom: {{ ar_padding }};
+    overflow: hidden;
+    background: #e9e9e9;
+}
+#{{ gallery_id }} .glb-thumb-wrap img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: {{ img_fit }};
+    object-position: center;
+    display: block;
+    transition: transform 0.35s ease;
+}
+{% else %}
+#{{ gallery_id }} .glb-thumb-wrap {
+    overflow: hidden;
+    background: #e9e9e9;
+}
+#{{ gallery_id }} .glb-thumb-wrap img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.35s ease;
+}
+{% endif %}
+
+/* Link-wrapper — usuń domyślne style <a> */
+#{{ gallery_id }} .glb-item-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+}
+#{{ gallery_id }} .glb-item-link:focus-visible {
+    outline: 3px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+{% if lb_enabled %}
+/* Efekt hover na miniaturze */
+{% if hover_zoom %}
+#{{ gallery_id }} .glb-item-link:hover .glb-thumb-wrap img {
+    transform: scale(1.06);
+}
+{% endif %}
+
+/* Ikona lupy */
+#{{ gallery_id }} .glb-item-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0,0,0,0);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8' stroke='%23fff' stroke-width='2' fill='none'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 40px;
+    opacity: 0;
+    transition: background-color 0.25s, opacity 0.25s;
+    pointer-events: none;
+}
+#{{ gallery_id }} .glb-item-link:hover::after {
+    background-color: rgba(0,0,0,0.3);
+    opacity: 1;
+}
+{% endif %}
+
+/* Filtrowanie */
+#{{ gallery_id }} .glb-item.glb-hidden {
+    display: none;
+}
+</style>
+{% endif %}
+{% endblock %}
+
+
+{# ═══════════════════════════════════════════════════════════════════
+   PARTICLE HTML
+   ═══════════════════════════════════════════════════════════════════ #}
+{% block particle %}
+{% if particle.enabled and active_items|length > 0 %}
+
+{% set extra_attr = '' %}
+{% for k, v in particle.extra|default({}) %}
+    {% set extra_attr = extra_attr ~ ' ' ~ k|e ~ '="' ~ v|e ~ '"' %}
+{% endfor %}
+
+{% set wrap_class = ['glb-gallery', particle.css_class|default('')]|filter(v => v)|join(' ')|trim %}
+
+<div id="{{ gallery_id }}" class="{{ wrap_class }}"{{ extra_attr|raw }}>
+
+    {# ── Przyciski filtrowania ── #}
+    {% if filter_enabled and categories|length > 0 %}
+    <div class="glb-filters mb-4 d-flex flex-wrap gap-2 justify-content-{{ filter_align }}"
+         role="group"
+         aria-label="Filtruj galerię według kategorii">
+        <button type="button"
+                class="btn btn-sm btn-{{ filter_style }} glb-filter-btn active"
+                data-filter="*"
+                aria-pressed="true">
+            {{ particle.filter_all_label|default('Wszystkie') }}
+        </button>
+        {% for cat in categories %}
+        <button type="button"
+                class="btn btn-sm btn-{{ filter_style }} glb-filter-btn"
+                data-filter="{{ cat|e }}"
+                aria-pressed="false">
+            {{ cat|e }}
+        </button>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# ── Siatka miniatur ── #}
+    <div class="glb-grid" role="list">
+        {% for item in active_items %}
+        {% set thumb_url = url(item.image) %}
+        {% set full_url  = url(item.image_full ? item.image_full : item.image) %}
+        {% set item_alt  = item.alt|default(item.title)|default('') %}
+        {% set item_cats = [] %}
+        {% if item.category %}
+            {% for c in item.category|split(',')|map(c => c|trim) %}
+                {% if c %}{% set item_cats = item_cats|merge([c]) %}{% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <div class="glb-item"
+             role="listitem"
+             data-categories="{{ item_cats|join(',')|e }}">
+
+            {% if lb_enabled %}
+            {# bs5-lightbox: href = pełny rozmiar, data-toggle="lightbox" #}
+            <a href="{{ full_url|e }}"
+               class="glb-item-link"
+               data-toggle="lightbox"
+               data-gallery="{{ gallery_id }}"
+               data-size="{{ lb_size }}"
+               {% if lb_caption and item.title %}data-caption="{{ item.title|e }}"{% endif %}
+               {% if lb_show_desc and item.description %}data-footer="{{ item.description|e }}"{% endif %}
+               aria-label="Otwórz {{ item.title|default('zdjęcie')|e }} w lightboxie">
+                <div class="glb-thumb-wrap">
+                    <img src="{{ thumb_url|e }}"
+                         alt="{{ item_alt|e }}"
+                         loading="lazy"
+                         decoding="async">
+                </div>
+            </a>
+            {% else %}
+            {# Bez lightboxa — sama miniatura #}
+            <div class="glb-item-link">
+                <div class="glb-thumb-wrap">
+                    <img src="{{ thumb_url|e }}"
+                         alt="{{ item_alt|e }}"
+                         loading="lazy"
+                         decoding="async">
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endif %}
+{% endblock %}
+
+
+{# ═══════════════════════════════════════════════════════════════════
+   JAVASCRIPT
+   ═══════════════════════════════════════════════════════════════════ #}
+{% block javascript_footer %}
+{% if particle.enabled and active_items|length > 0 %}
+<script>
+(function () {
+    'use strict';
+
+    var galleryEl = document.getElementById('{{ gallery_id }}');
+    if (!galleryEl) return;
+
+    var allItems   = Array.from(galleryEl.querySelectorAll('.glb-item'));
+    var filterBtns = galleryEl.querySelectorAll('.glb-filter-btn');
+
+    /* ════════════════════════════════════════════
+       FILTROWANIE
+    ════════════════════════════════════════════ */
+    function applyFilter(filter) {
+        allItems.forEach(function (item) {
+            var cats = (item.getAttribute('data-categories') || '')
+                .split(',')
+                .map(function (s) { return s.trim(); })
+                .filter(Boolean);
+
+            var match = filter === '*' || cats.indexOf(filter) !== -1;
+
+            if (match) {
+                item.classList.remove('glb-hidden');
+                item.removeAttribute('aria-hidden');
+                /* Dodaj do galerii lightboxa — bs5-lightbox grupuje po data-gallery */
+                var link = item.querySelector('a[data-toggle="lightbox"]');
+                if (link) link.setAttribute('data-gallery', '{{ gallery_id }}');
+            } else {
+                item.classList.add('glb-hidden');
+                item.setAttribute('aria-hidden', 'true');
+                /* Usuń z galerii — lightbox nie będzie jej wyświetlać w karuzeli */
+                var link = item.querySelector('a[data-toggle="lightbox"]');
+                if (link) link.removeAttribute('data-gallery');
+            }
+        });
+    }
+
+    if (filterBtns.length) {
+        filterBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                filterBtns.forEach(function (b) {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+                btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
+                applyFilter(btn.getAttribute('data-filter'));
+            });
+        });
+    }
+
+    /* ════════════════════════════════════════════
+       BS5-LIGHTBOX — ładowanie z CDN
+       bs5-lightbox wymaga window.bootstrap.Modal i window.bootstrap.Carousel.
+       Joomla 5 ładuje Bootstrap jako ES moduły (brak globalnego window.bootstrap),
+       więc ręcznie eksponujemy klasy przed załadowaniem biblioteki.
+    ════════════════════════════════════════════ */
+    {% if lb_enabled %}
+    (function () {
+        var root = (typeof Joomla !== 'undefined' && Joomla.getOptions)
+            ? (Joomla.getOptions('system.paths') || {}).root || ''
+            : '';
+        var base = root + '/media/vendor/bootstrap/js/';
+
+        Promise.all([
+            import(base + 'modal.min.js'),
+            import(base + 'carousel.min.js')
+        ]).then(function (mods) {
+            /* Wystaw klasy globalnie — tego wymaga bs5-lightbox */
+            window.bootstrap = window.bootstrap || {};
+            window.bootstrap.Modal    = mods[0].M    || mods[0].Modal    || mods[0].default;
+            window.bootstrap.Carousel = mods[1].C    || mods[1].Carousel || mods[1].default;
+
+            return import('{{ url("gantry-theme://custom/particles/js/bs5-lightbox.bundle.min.js") }}');
+        }).catch(function (err) {
+            console.warn('[Gallery Lightbox] Błąd ładowania lightboxa:', err);
+        });
+    }());
+    {% endif %}
+
+}());
+</script>
+{% endif %}
+{% endblock %}

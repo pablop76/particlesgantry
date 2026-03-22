@@ -43,6 +43,32 @@ Pełnoprawna nawigacja Joomla oparta na **Bootstrap 5.3** z offcanvas na mobile.
 
 > Bootstrap 5.3 jest wbudowany w Joomla 5+ — cząstka ładuje go z `/media/vendor/bootstrap/`, nie wymaga dodatkowej instalacji.
 
+### Gallery Lightbox
+
+> `particles/gallery_lightbox.yaml` + `particles/gallery_lightbox.html.twig` + `particles/js/bs5-lightbox.bundle.min.js`
+
+Galeria zdjęć z filtrowaniem kategorii i lightboxem opartym na **[bs5-lightbox](https://trvswgnr.github.io/bs5-lightbox/)** (Bootstrap 5 Modal + Carousel).
+
+**Funkcje:**
+- Kolekcja zdjęć z tytułem, opisem, kategorią i osobnym pełnym rozmiarem do lightboxa
+- Filtrowanie po kategoriach — przyciski generowane automatycznie z danych zdjęć
+- Obsługa wielu kategorii na jedno zdjęcie (oddzielone przecinkiem)
+- Siatka CSS Grid z niezależną liczbą kolumn na 5 breakpointach (xs/sm/md/lg/xl)
+- Konfigurowalne proporcje miniatur: 1:1, 4:3, 16:9, 3:4, swobodne
+- Dopasowanie obrazka: cover / contain
+- Lightbox: nawigacja karuzelą, klawiatura, swipe, caption, opis, rozmiar (sm/lg/xl/fullscreen)
+- Efekt lupy i powiększenia przy hover
+- Pełna dostępność (aria-label, aria-pressed, keyboard)
+
+**Instalacja (dodatkowy plik JS):**
+```
+templates/{nazwa_szablonu}/custom/particles/js/bs5-lightbox.bundle.min.js
+```
+
+**Wymagania:** Joomla 5+ / 6+, Gantry 5, szablon z Bootstrap 5 (np. Helium)
+
+> Bootstrap 5.3 ładowany z `/media/vendor/bootstrap/` — bs5-lightbox używa go przez `window.bootstrap` (cząstka wystawia klasy globalnie automatycznie).
+
 ---
 
 ## Wymagania ogólne

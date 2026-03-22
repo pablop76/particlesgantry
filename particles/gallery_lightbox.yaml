@@ -1,0 +1,276 @@
+name: Gallery Lightbox
+description: Galeria zdjęć z filtrowaniem kategorii i lightboxem (Bootstrap 5.3).
+type: particle
+icon: fa-images
+
+configuration:
+  caching:
+    type: static
+
+form:
+  overrideable: false
+  fields:
+
+    enabled:
+      type: input.checkbox
+      label: Enabled
+      description: Globalnie włącz/wyłącz galerię.
+      default: true
+
+    _tabs:
+      type: container.tabs
+      fields:
+
+        _tab_images:
+          label: Zdjęcia
+          fields:
+
+            images_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Kolekcja zdjęć'
+
+            items:
+              type: collection.list
+              array: true
+              label: Zdjęcia
+              value: title
+              ajax: true
+              overrideable: false
+              fields:
+                .title:
+                  type: input.text
+                  label: Tytuł
+                  placeholder: Tytuł zdjęcia
+                .description:
+                  type: textarea.textarea
+                  label: Opis
+                  placeholder: Opcjonalny opis widoczny w lightboxie
+                .category:
+                  type: input.text
+                  label: Kategoria
+                  placeholder: 'np. Natura, Architektura'
+                  description: Używana do filtrowania. Wiele kategorii oddziel przecinkiem.
+                .image:
+                  type: input.imagepicker
+                  label: Miniatura (thumbnail)
+                .image_full:
+                  type: input.imagepicker
+                  label: Pełny rozmiar (lightbox)
+                  description: Jeśli puste, lightbox używa miniatury.
+                .alt:
+                  type: input.text
+                  label: Tekst alt
+                  placeholder: Opis obrazka dla czytników ekranu
+                .disable:
+                  type: input.checkbox
+                  label: Wyłącz zdjęcie
+                  default: false
+
+        _tab_layout:
+          label: Układ
+          fields:
+
+            layout_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Siatka — liczba kolumn na breakpoint'
+
+            cols_xs:
+              type: select.select
+              label: Kolumny (xs < 576px)
+              default: '2'
+              options:
+                '1': '1'
+                '2': '2'
+                '3': '3'
+
+            cols_sm:
+              type: select.select
+              label: Kolumny (sm ≥ 576px)
+              default: '2'
+              options:
+                '1': '1'
+                '2': '2'
+                '3': '3'
+                '4': '4'
+
+            cols_md:
+              type: select.select
+              label: Kolumny (md ≥ 768px)
+              default: '3'
+              options:
+                '1': '1'
+                '2': '2'
+                '3': '3'
+                '4': '4'
+
+            cols_lg:
+              type: select.select
+              label: Kolumny (lg ≥ 992px)
+              default: '4'
+              options:
+                '2': '2'
+                '3': '3'
+                '4': '4'
+                '5': '5'
+                '6': '6'
+
+            cols_xl:
+              type: select.select
+              label: Kolumny (xl ≥ 1200px)
+              default: '4'
+              options:
+                '2': '2'
+                '3': '3'
+                '4': '4'
+                '5': '5'
+                '6': '6'
+
+            gap_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Wygląd miniatur'
+
+            gap:
+              type: input.number
+              label: Odstęp między zdjęciami (px)
+              default: 8
+              min: 0
+              max: 48
+              step: 2
+
+            aspect_ratio:
+              type: select.select
+              label: Proporcje miniatur
+              default: '4x3'
+              options:
+                '1x1':  'Kwadrat (1:1)'
+                '4x3':  'Krajobraz (4:3)'
+                '16x9': 'Wideo (16:9)'
+                '3x4':  'Portret (3:4)'
+                'free': 'Swobodne (oryginał)'
+
+            img_fit:
+              type: select.select
+              label: Dopasowanie obrazka
+              default: cover
+              options:
+                cover:   'Cover — wypełnij i przytnij'
+                contain: 'Contain — cały obrazek'
+
+            hover_zoom:
+              type: input.checkbox
+              label: Efekt powiększenia przy hover
+              default: true
+
+        _tab_filter:
+          label: Filtrowanie
+          overrideable: false
+          fields:
+
+            filter_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Przyciski filtrowania kategorii'
+
+            filter_enabled:
+              type: input.checkbox
+              label: Włącz filtrowanie
+              default: false
+
+            filter_all_label:
+              type: input.text
+              label: Etykieta przycisku "Wszystkie"
+              default: Wszystkie
+              placeholder: Wszystkie
+
+            filter_align:
+              type: select.select
+              label: Wyrównanie przycisków
+              default: center
+              options:
+                start:  'Lewo'
+                center: 'Środek'
+                end:    'Prawo'
+
+            filter_style:
+              type: select.select
+              label: Styl przycisków (Bootstrap)
+              default: outline-secondary
+              options:
+                primary:          'Wypełniony — primary'
+                outline-primary:  'Kontur — primary'
+                secondary:        'Wypełniony — secondary'
+                outline-secondary: 'Kontur — secondary'
+                dark:             'Wypełniony — ciemny'
+                outline-dark:     'Kontur — ciemny'
+                light:            'Wypełniony — jasny'
+                outline-light:    'Kontur — jasny'
+
+            filter_anim:
+              type: input.checkbox
+              label: Animacja przy filtrowaniu
+              default: true
+
+        _tab_lightbox:
+          label: Lightbox
+          overrideable: false
+          fields:
+
+            lb_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Lightbox — bs5-lightbox (Bootstrap 5 Modal + Carousel)'
+
+            lightbox_enabled:
+              type: input.checkbox
+              label: Włącz lightbox
+              default: true
+
+            lb_size:
+              type: select.select
+              label: Rozmiar okna lightboxa
+              default: xl
+              options:
+                sm:         'Mały (sm)'
+                lg:         'Duży (lg)'
+                xl:         'Bardzo duży (xl)'
+                fullscreen: 'Pełny ekran'
+
+            lb_caption:
+              type: input.checkbox
+              label: Pokaż tytuł zdjęcia (caption)
+              default: true
+
+            lb_show_desc:
+              type: input.checkbox
+              label: Pokaż opis zdjęcia (footer)
+              default: true
+
+            lb_cdn_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Plik JS: custom/particles/js/bs5-lightbox.bundle.min.js'
+
+        _tab_advanced:
+          label: Zaawansowane
+          overrideable: false
+          fields:
+
+            css_class:
+              type: input.text
+              label: Klasa CSS na kontenerze
+              placeholder: moja-galeria
+
+            extra:
+              type: collection.keyvalue
+              label: Dodatkowe atrybuty HTML
+              key_placeholder: 'data-atrybut'
+              value_placeholder: 'wartość'
+              exclude: ['id', 'class']
+
+    copyright:
+      type: separator.note
+      class: alert alert-success
+      content: 'Gallery Lightbox — wersja 1.0 | <a href="https://web-service.com.pl/" target="_blank">pablop76</a>'
