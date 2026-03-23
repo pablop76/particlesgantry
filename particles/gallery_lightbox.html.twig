@@ -327,6 +327,19 @@ div.modal.lightbox[data-glb="{{ gallery_id }}"] .modal-fullscreen { width: 100% 
     {% endif %}
 
     /* ════════════════════════════════════════════
+       FIX: aria-hidden + focus warning
+       Bootstrap ustawia aria-hidden="true" przed ukryciem modalu,
+       ale focus może jeszcze być wewnątrz — blur() przed hide.
+    ════════════════════════════════════════════ */
+    {% if lb_enabled %}
+    document.addEventListener('hide.bs.modal', function (e) {
+        if (!e.target.classList.contains('lightbox')) return;
+        var focused = e.target.querySelector(':focus');
+        if (focused) focused.blur();
+    }, true);
+    {% endif %}
+
+    /* ════════════════════════════════════════════
        TAGOWANIE MODALU — data-glb="{{ gallery_id }}"
        Przy kliknięciu w link tej galerii zapamiętujemy ID.
        MutationObserver wstrzykuje atrybut do nowo dodanego modalu,
