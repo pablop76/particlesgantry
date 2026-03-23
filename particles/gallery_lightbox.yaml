@@ -228,6 +228,12 @@ form:
               label: Włącz lightbox
               default: true
 
+            lb_disable_mobile:
+              type: input.checkbox
+              label: Wyłącz lightbox na mobile (< 768px)
+              description: Na urządzeniach mobilnych kliknięcie otworzy zdjęcie w nowej karcie zamiast lightboxa.
+              default: false
+
             lb_size:
               type: select.select
               label: Rozmiar okna lightboxa

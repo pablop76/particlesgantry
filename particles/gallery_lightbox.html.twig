@@ -20,10 +20,11 @@
 {% set filter_style   = particle.filter_style|default('outline-secondary') %}
 {% set filter_align   = particle.filter_align|default('center') %}
 
-{% set lb_enabled  = particle.lightbox_enabled != false %}
-{% set lb_size     = particle.lb_size|default('xl') %}
-{% set lb_caption  = particle.lb_caption != false %}
-{% set lb_show_desc = particle.lb_show_desc != false %}
+{% set lb_enabled        = particle.lightbox_enabled != false %}
+{% set lb_disable_mobile = particle.lb_disable_mobile|default(false) %}
+{% set lb_size           = particle.lb_size|default('xl') %}
+{% set lb_caption        = particle.lb_caption != false %}
+{% set lb_show_desc      = particle.lb_show_desc != false %}
 
 {# Aspect ratio → padding-bottom % #}
 {% set ar_map = {'1x1': '100%', '4x3': '75%', '16x9': '56.25%', '3x4': '133.33%', 'free': null} %}
@@ -149,6 +150,12 @@
 #{{ gallery_id }} .glb-item.glb-hidden {
     display: none;
 }
+
+/* Nadpisuje tylko modal tej galerii (data-glb dodaje JS przy kliknięciu) */
+@media (max-width: 47.99rem) {
+    div.modal.lightbox[data-glb="{{ gallery_id }}"].fade { top: 0 !important; }
+}
+div.modal.lightbox[data-glb="{{ gallery_id }}"] .modal-fullscreen { width: 100% !important; }
 </style>
 {% endif %}
 {% endblock %}
@@ -276,13 +283,11 @@
             if (match) {
                 item.classList.remove('glb-hidden');
                 item.removeAttribute('aria-hidden');
-                /* Dodaj do galerii lightboxa — bs5-lightbox grupuje po data-gallery */
                 var link = item.querySelector('a[data-toggle="lightbox"]');
                 if (link) link.setAttribute('data-gallery', '{{ gallery_id }}');
             } else {
                 item.classList.add('glb-hidden');
                 item.setAttribute('aria-hidden', 'true');
-                /* Usuń z galerii — lightbox nie będzie jej wyświetlać w karuzeli */
                 var link = item.querySelector('a[data-toggle="lightbox"]');
                 if (link) link.removeAttribute('data-gallery');
             }
@@ -304,10 +309,56 @@
     }
 
     /* ════════════════════════════════════════════
-       BS5-LIGHTBOX — ładowanie z CDN
-       bs5-lightbox wymaga window.bootstrap.Modal i window.bootstrap.Carousel.
-       Joomla 5 ładuje Bootstrap jako ES moduły (brak globalnego window.bootstrap),
-       więc ręcznie eksponujemy klasy przed załadowaniem biblioteki.
+       WYŁĄCZ LIGHTBOX NA MOBILE
+       Gdy opcja aktywna i ekran < 768px — usuwa atrybuty
+       bs5-lightbox, klik otwiera zdjęcie w nowej karcie.
+    ════════════════════════════════════════════ */
+    {% if lb_enabled and lb_disable_mobile %}
+    (function () {
+        if (window.innerWidth >= 768) return;
+        var links = galleryEl.querySelectorAll('a[data-toggle="lightbox"]');
+        links.forEach(function (a) {
+            a.removeAttribute('data-toggle');
+            a.removeAttribute('data-gallery');
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+        });
+    }());
+    {% endif %}
+
+    /* ════════════════════════════════════════════
+       TAGOWANIE MODALU — data-glb="{{ gallery_id }}"
+       Przy kliknięciu w link tej galerii zapamiętujemy ID.
+       MutationObserver wstrzykuje atrybut do nowo dodanego modalu,
+       dzięki czemu CSS nadpisuje tylko tę galerię.
+    ════════════════════════════════════════════ */
+    {% if lb_enabled %}
+    (function () {
+        var pendingGlbId = null;
+
+        galleryEl.addEventListener('click', function (e) {
+            if (e.target.closest('a[data-toggle="lightbox"]')) {
+                pendingGlbId = '{{ gallery_id }}';
+            }
+        }, true);
+
+        var obs = new MutationObserver(function (mutations) {
+            mutations.forEach(function (m) {
+                m.addedNodes.forEach(function (node) {
+                    if (node.nodeType !== 1 || !node.classList.contains('lightbox')) return;
+                    if (pendingGlbId) {
+                        node.setAttribute('data-glb', pendingGlbId);
+                        pendingGlbId = null;
+                    }
+                });
+            });
+        });
+        obs.observe(document.body, { childList: true });
+    }());
+    {% endif %}
+
+    /* ════════════════════════════════════════════
+       BS5-LIGHTBOX
     ════════════════════════════════════════════ */
     {% if lb_enabled %}
     (function () {
@@ -320,7 +371,6 @@
             import(base + 'modal.min.js'),
             import(base + 'carousel.min.js')
         ]).then(function (mods) {
-            /* Wystaw klasy globalnie — tego wymaga bs5-lightbox */
             window.bootstrap = window.bootstrap || {};
             window.bootstrap.Modal    = mods[0].M    || mods[0].Modal    || mods[0].default;
             window.bootstrap.Carousel = mods[1].C    || mods[1].Carousel || mods[1].default;
