@@ -1,0 +1,352 @@
+{% extends '@nucleus/partials/particle.html.twig' %}
+
+{# ══════════════════════════════════════════════════════════════
+   ZMIENNE GLOBALNE — dostępne we wszystkich blokach
+   ══════════════════════════════════════════════════════════════ #}
+
+{% set carousel_id = 'bs-carousel-' ~ id %}
+
+{# Filtruj ukryte slajdy #}
+{% set active_items = [] %}
+{% for item in particle.items|default([]) %}
+    {% if not item.disable %}
+        {% set active_items = active_items|merge([item]) %}
+    {% endif %}
+{% endfor %}
+
+{# Opcje karuzeli #}
+{% set transition    = particle.transition|default('slide') %}
+{% set show_controls = particle.controls|default('show') != 'hide' %}
+{% set indicators    = particle.indicators|default('dots') %}
+{% set dark_theme    = particle.dark_theme %}
+{% set height        = particle.height|default('') %}
+{% set extra_class   = particle.class|default('') %}
+
+{# Caption — ustawienia globalne #}
+{% set caption_pos    = particle.caption_position|default('bottom-center') %}
+{% set caption_align  = particle.caption_text_align|default('center') %}
+{% set cap_bg_color   = particle.caption_bg_color|default('') %}
+{% set cap_bg_opacity = particle.caption_bg_opacity|default('0.5') %}
+{% set cap_bg_blur    = particle.caption_bg_blur|default('0') %}
+{% set cap_radius     = particle.caption_border_radius|default('0') %}
+{% set title_tag      = particle.caption_title_tag|default('h2') %}
+{% set cap_btn_radius = particle.caption_btn_border_radius|default('') %}
+
+{# Szerokość i padding caption #}
+{% set cap_width           = particle.caption_width|default('100%') %}
+{% set cap_max_width       = particle.caption_max_width|default('') %}
+{% set cap_padding         = particle.caption_padding|default('1.25rem 1.5rem') %}
+{% set cap_wrapper_padding = particle.caption_wrapper_padding|default('1.5rem') %}
+
+{# 9-punktowa pozycja caption → align-items (pionowo) + justify-content (poziomo) #}
+{% set cap_valign_map = {
+    'top-start'    : 'flex-start', 'top-center'    : 'flex-start', 'top-end'    : 'flex-start',
+    'middle-start' : 'center',     'middle-center'  : 'center',    'middle-end' : 'center',
+    'bottom-start' : 'flex-end',   'bottom-center'  : 'flex-end',  'bottom-end' : 'flex-end'
+} %}
+{% set cap_halign_map = {
+    'top-start'    : 'flex-start', 'middle-start'  : 'flex-start', 'bottom-start'  : 'flex-start',
+    'top-center'   : 'center',     'middle-center' : 'center',     'bottom-center' : 'center',
+    'top-end'      : 'flex-end',   'middle-end'    : 'flex-end',   'bottom-end'    : 'flex-end'
+} %}
+{% set cap_valign = cap_valign_map[caption_pos]|default('flex-end') %}
+{% set cap_halign = cap_halign_map[caption_pos]|default('center') %}
+
+{# Wyrównanie tekstu i przycisków wewnątrz caption #}
+{% set btn_justify_map = {
+    'start'  : 'flex-start',
+    'center' : 'center',
+    'end'    : 'flex-end'
+} %}
+{% set btn_justify = btn_justify_map[caption_align]|default('center') %}
+
+{# Czy w ogóle używamy tła caption #}
+{% set has_global_bg = cap_bg_color or (cap_bg_blur and cap_bg_blur|trim != '0') %}
+
+
+{# ══════════════════════════════════════════════════════════════
+   CSS
+   ══════════════════════════════════════════════════════════════ #}
+{% block stylesheets %}
+{% if particle.enabled and active_items|length > 0 %}
+<script>(function(){if(document.head.querySelector('link[href*="bootstrap.min.css"]'))return;var l=document.createElement('link');l.rel='stylesheet';l.href='{{ gantry.siteUrl() }}media/vendor/bootstrap/css/bootstrap.min.css';document.head.appendChild(l);}());</script>
+<style>
+/* ── Kontener slajdu ── */
+#{{ carousel_id }} .carousel-item {
+    position: relative;
+    overflow: hidden;{% if height %}
+    height: {{ height|e }};{% endif %}
+}
+{% if height %}
+#{{ carousel_id }} .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+{% endif %}
+
+/* ── Wrapper pozycjonujący caption ── */
+#{{ carousel_id }} .caption-wrapper {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: {{ cap_valign }};
+    justify-content: {{ cap_halign }};
+    padding: {{ cap_wrapper_padding|e }};
+    pointer-events: none;
+}
+
+/* ── Kontener wewnętrzny caption ── */
+#{{ carousel_id }} .caption-inner {
+    position: relative;
+    width: {{ cap_width|e }};
+    {% if cap_max_width %}max-width: {{ cap_max_width|e }};{% else %}max-width: 100%;{% endif %}
+    overflow: hidden;
+    border-radius: {{ cap_radius ?: '0' }};
+    padding: {{ cap_padding|e }};
+    text-align: {{ caption_align|e }};
+    pointer-events: auto;
+}
+
+/* ── Tło caption (kolor + blur) ─── */
+/* Domyślne wartości przez CSS custom properties */
+#{{ carousel_id }} {
+    --cap-bg-color: {{ cap_bg_color ?: 'transparent' }};
+    --cap-bg-opacity: {{ cap_bg_opacity ?: '0.5' }};
+}
+#{{ carousel_id }} .caption-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: var(--cap-bg-color);
+    opacity: var(--cap-bg-opacity);{% if cap_bg_blur and cap_bg_blur|trim != '0' %}
+    backdrop-filter: blur({{ cap_bg_blur|e }}px);
+    -webkit-backdrop-filter: blur({{ cap_bg_blur|e }}px);{% endif %}
+}
+
+/* ── Treść caption nad tłem ── */
+#{{ carousel_id }} .caption-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Typografia caption ── */
+#{{ carousel_id }} .caption-subtitle {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    margin-bottom: 0.375rem;
+}
+#{{ carousel_id }} .caption-title {
+    font-size: clamp(1.25rem, 2.5vw + 0.5rem, 2.25rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.625rem;
+}
+#{{ carousel_id }} .caption-text {
+    font-size: clamp(0.875rem, 1vw + 0.4rem, 1rem);
+    margin-bottom: 1.25rem;
+    line-height: 1.6;
+}
+#{{ carousel_id }} .caption-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    justify-content: {{ btn_justify }};
+}
+
+{% if cap_btn_radius %}
+/* ── Zaokrąglenie przycisków ── */
+#{{ carousel_id }} .caption-buttons .btn {
+    border-radius: {{ cap_btn_radius|e }};
+}
+{% endif %}
+
+/* ── Wskaźniki numeryczne ── */
+{% if indicators == 'numbers' %}
+#{{ carousel_id }} .carousel-indicators [data-bs-slide-to] {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 2rem;
+    text-indent: 0;
+    border-top: none;
+    border-bottom: none;
+    background-clip: unset;
+    border: 2px solid rgba(255,255,255,0.6);
+    background-color: rgba(255,255,255,0.15);
+}
+#{{ carousel_id }} .carousel-indicators [data-bs-slide-to].active {
+    background-color: rgba(255,255,255,0.9);
+    color: #000;
+}
+{% endif %}
+</style>
+{% endif %}
+{% endblock %}
+
+
+{# ══════════════════════════════════════════════════════════════
+   HTML
+   ══════════════════════════════════════════════════════════════ #}
+{% block particle %}
+{% if particle.enabled and active_items|length > 0 %}
+
+{% set carousel_classes = [
+    'carousel',
+    transition == 'fade' ? 'carousel-fade' : '',
+    extra_class
+]|filter(v => v)|join(' ')|trim %}
+
+<div id="{{ carousel_id }}"
+     class="{{ carousel_classes }}"
+     {% if dark_theme %}data-bs-theme="dark"{% endif %}
+     {% if particle.autoplay != 'disable' %}data-bs-ride="{{ particle.autoplay == 'carousel' ? 'carousel' : 'true' }}"{% endif %}>
+
+    {# ── Wskaźniki slajdów ── #}
+    {% if indicators != 'none' %}
+    <div class="carousel-indicators">
+        {% for item in active_items %}
+        <button type="button"
+                data-bs-target="#{{ carousel_id }}"
+                data-bs-slide-to="{{ loop.index0 }}"
+                {% if loop.first %}class="active" aria-current="true"{% endif %}
+                aria-label="Slajd {{ loop.index }}">{% if indicators == 'numbers' %}{{ loop.index }}{% endif %}</button>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# ── Slajdy ── #}
+    <div class="carousel-inner">
+        {% for item in active_items %}
+
+        {# Per-slide bg override przez CSS custom properties #}
+        {% set has_slide_bg = item.bg_color %}
+        {% set slide_opacity = item.bg_opacity|default(cap_bg_opacity)|default('0.5') %}
+        {% set show_caption_bg = has_global_bg or has_slide_bg %}
+
+        <div class="carousel-item{% if loop.first %} active{% endif %}"
+             {% if item.interval %}data-bs-interval="{{ item.interval|e }}"{% endif %}
+             {% if has_slide_bg %}style="--cap-bg-color:{{ item.bg_color|e }};--cap-bg-opacity:{{ slide_opacity|e }}"{% endif %}>
+
+            {# Obraz tła slajdu #}
+            {% if item.image %}
+            <img src="{{ url(item.image)|e }}"
+                 class="d-block w-100"
+                 alt="{{ item.image_alt|default(item.title)|e }}"
+                 {% if loop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                 decoding="async">
+            {% endif %}
+
+            {# Caption — renderuj tylko gdy jest jakakolwiek treść #}
+            {% if item.subtitle or item.title or item.text or item.btn1_text or item.btn2_text %}
+            <div class="caption-wrapper">
+                <div class="caption-inner">
+
+                    {# Warstwa tła (kolor + blur) #}
+                    {% if show_caption_bg %}
+                    <div class="caption-bg" aria-hidden="true"></div>
+                    {% endif %}
+
+                    <div class="caption-content">
+                        {% if item.subtitle %}
+                        <p class="caption-subtitle">{{ item.subtitle|e }}</p>
+                        {% endif %}
+
+                        {% if item.title or item.title2 %}
+                        <{{ title_tag }} class="caption-title">
+                            {%- if item.title -%}
+                            <span{% if item.title_color %} style="color:{{ item.title_color|e }}"{% endif %}>{{ item.title|e }}</span>
+                            {%- endif -%}
+                            {%- if item.title2 -%}
+                            <span{% if item.title2_color %} style="color:{{ item.title2_color|e }}"{% endif %}>{{ item.title2|e }}</span>
+                            {%- endif -%}
+                        </{{ title_tag }}>
+                        {% endif %}
+
+                        {% if item.text %}
+                        <p class="caption-text">{{ item.text|e }}</p>
+                        {% endif %}
+
+                        {% if item.btn1_text or item.btn2_text %}
+                        <div class="caption-buttons">
+                            {% if item.btn1_text %}
+                            <a href="{{ item.btn1_url|default('#')|e }}"
+                               class="btn {{ item.btn1_style|default('btn-primary')|e }}"
+                               {% if item.btn1_target == '_blank' %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                {{ item.btn1_text|e }}
+                            </a>
+                            {% endif %}
+                            {% if item.btn2_text %}
+                            <a href="{{ item.btn2_url|default('#')|e }}"
+                               class="btn {{ item.btn2_style|default('btn-outline-light')|e }}"
+                               {% if item.btn2_target == '_blank' %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                {{ item.btn2_text|e }}
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ── Strzałki nawigacji ── #}
+    {% if show_controls %}
+    <button class="carousel-control-prev" type="button"
+            data-bs-target="#{{ carousel_id }}" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Poprzedni</span>
+    </button>
+    <button class="carousel-control-next" type="button"
+            data-bs-target="#{{ carousel_id }}" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Następny</span>
+    </button>
+    {% endif %}
+
+</div>
+{% endif %}
+{% endblock %}
+
+
+{# ══════════════════════════════════════════════════════════════
+   JS — Bootstrap Carousel
+   ══════════════════════════════════════════════════════════════ #}
+{% block javascript_footer %}
+{% if particle.enabled and active_items|length > 0 %}
+<script>
+(function () {
+    var root = (typeof Joomla !== 'undefined' && Joomla.getOptions)
+        ? (Joomla.getOptions('system.paths') || {}).root || ''
+        : '';
+
+    import(root + '/media/vendor/bootstrap/js/carousel.min.js').then(function (module) {
+        var Carousel = module.C || module.Carousel || module.default;
+        var el = document.getElementById('{{ carousel_id }}');
+        if (!el || !Carousel) return;
+
+        new Carousel(el, {
+            interval : {{ particle.autoplay != 'disable' ? (particle.interval|default('5000')) : 'false' }},
+            ride     : {{ particle.autoplay == 'carousel' ? '"carousel"' : (particle.autoplay == 'interaction' ? 'true' : 'false') }},
+            touch    : {{ particle.touch|default('enable') != 'disable' ? 'true' : 'false' }},
+            wrap     : {{ particle.wrap|default('enable') != 'disable' ? 'true' : 'false' }},
+            keyboard : {{ particle.keyboard|default('enable') != 'disable' ? 'true' : 'false' }},
+            pause    : {{ particle.pause_hover|default('enable') != 'disable' ? '"hover"' : 'false' }}
+        });
+    }).catch(function (err) {
+        console.warn('[Carousel Bootstrap] Błąd ładowania JS:', err);
+    });
+}());
+</script>
+{% endif %}
+{% endblock %}

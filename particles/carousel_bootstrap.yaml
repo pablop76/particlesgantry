@@ -1,0 +1,347 @@
+name: Carousel Bootstrap
+description: Karuzela Bootstrap 5 — slide/fade, controls, indicators, caption z blur i przyciskami.
+type: particle
+icon: fa-images
+
+configuration:
+  caching:
+    type: static
+
+form:
+  overrideable: false
+  fields:
+
+    enabled:
+      type: input.checkbox
+      label: Enabled
+      default: true
+
+    _tabs:
+      type: container.tabs
+      fields:
+
+        _tab_slides:
+          label: Slajdy
+          fields:
+            items:
+              type: collection.list
+              array: true
+              label: Slajdy
+              value: name
+              ajax: true
+              overrideable: false
+              fields:
+                .name:
+                  type: input.text
+                  label: 'Etykieta w panelu admina (nie wyświetla się na stronie)'
+                  placeholder: 'np. Slajd 1 — Hero'
+                .subtitle:
+                  type: input.text
+                  label: Podtytuł (wyświetlany nad tytułem)
+                ._sep_title:
+                  type: separator.note
+                  class: alert alert-info
+                  content: 'Tytuł'
+                .title:
+                  type: input.text
+                  label: Tytuł — część 1
+                .title_color:
+                  type: input.colorpicker
+                  label: Część 1 — kolor tekstu
+                .title2:
+                  type: input.text
+                  label: Tytuł — część 2 (ten sam tag h2, opcjonalna)
+                .title2_color:
+                  type: input.colorpicker
+                  label: Część 2 — kolor tekstu
+                .text:
+                  type: textarea.textarea
+                  label: Tekst pod tytułem
+                .image:
+                  type: input.imagepicker
+                  label: Obraz tła
+                .image_alt:
+                  type: input.text
+                  label: Tekst alternatywny obrazu
+                ._sep_btns:
+                  type: separator.note
+                  class: alert alert-info
+                  content: 'Przyciski'
+                .btn1_text:
+                  type: input.text
+                  label: Przycisk 1 — Tekst
+                .btn1_url:
+                  type: input.text
+                  label: Przycisk 1 — URL
+                  placeholder: 'https://'
+                .btn1_style:
+                  type: select.select
+                  label: Przycisk 1 — Styl
+                  default: btn-primary
+                  options:
+                    btn-primary: Primary
+                    btn-secondary: Secondary
+                    btn-success: Success
+                    btn-warning: Warning
+                    btn-danger: Danger
+                    btn-info: Info
+                    btn-light: Light
+                    btn-dark: Dark
+                    btn-outline-primary: Outline Primary
+                    btn-outline-secondary: Outline Secondary
+                    btn-outline-light: Outline Light
+                    btn-outline-dark: Outline Dark
+                .btn1_target:
+                  type: select.select
+                  label: Przycisk 1 — Otwórz w
+                  default: _self
+                  options:
+                    _self: Tym samym oknie
+                    _blank: Nowym oknie
+                .btn2_text:
+                  type: input.text
+                  label: Przycisk 2 — Tekst
+                .btn2_url:
+                  type: input.text
+                  label: Przycisk 2 — URL
+                  placeholder: 'https://'
+                .btn2_style:
+                  type: select.select
+                  label: Przycisk 2 — Styl
+                  default: btn-outline-light
+                  options:
+                    btn-primary: Primary
+                    btn-secondary: Secondary
+                    btn-success: Success
+                    btn-warning: Warning
+                    btn-danger: Danger
+                    btn-info: Info
+                    btn-light: Light
+                    btn-dark: Dark
+                    btn-outline-primary: Outline Primary
+                    btn-outline-secondary: Outline Secondary
+                    btn-outline-light: Outline Light
+                    btn-outline-dark: Outline Dark
+                .btn2_target:
+                  type: select.select
+                  label: Przycisk 2 — Otwórz w
+                  default: _self
+                  options:
+                    _self: Tym samym oknie
+                    _blank: Nowym oknie
+                ._sep_slide_bg:
+                  type: separator.note
+                  class: alert alert-info
+                  content: 'Tło caption — nadpisuje ustawienia globalne'
+                .bg_color:
+                  type: input.colorpicker
+                  label: Kolor tła caption (per slajd)
+                .bg_opacity:
+                  type: input.text
+                  label: Przezroczystość tła (0–1)
+                  placeholder: 'Domyślna z zakładki Wygląd'
+                .interval:
+                  type: input.number
+                  label: Czas wyświetlania slajdu (ms)
+                  placeholder: 'Domyślny z zakładki Zachowanie'
+                .disable:
+                  type: input.checkbox
+                  label: Ukryj slajd
+                  default: false
+
+        _tab_appearance:
+          label: Wygląd
+          fields:
+
+            _sep_carousel:
+              type: separator.note
+              class: alert alert-info
+              content: 'Styl karuzeli'
+
+            transition:
+              type: select.select
+              label: Animacja przejścia
+              default: slide
+              options:
+                slide: Slide (przesuwanie)
+                fade: Crossfade (przenikanie)
+
+            controls:
+              type: select.select
+              label: Strzałki nawigacji (prev/next)
+              default: show
+              options:
+                show: Pokaż
+                hide: Ukryj
+
+            indicators:
+              type: select.select
+              label: Wskaźniki slajdów
+              default: dots
+              options:
+                dots: Kropki
+                numbers: Numery
+                none: Ukryj
+
+            dark_theme:
+              type: input.checkbox
+              label: Ciemny motyw kontrolek (data-bs-theme="dark")
+              default: false
+
+            height:
+              type: input.text
+              label: Wysokość karuzeli
+              placeholder: '500px, 60vh, auto'
+
+            class:
+              type: input.text
+              label: Dodatkowa klasa CSS karuzeli
+
+            _sep_caption:
+              type: separator.note
+              class: alert alert-info
+              content: 'Styl caption'
+
+            caption_position:
+              type: select.select
+              label: Pozycja caption (9 punktów)
+              default: bottom-center
+              options:
+                top-start: ↖ Góra lewo
+                top-center: ↑ Góra środek
+                top-end: ↗ Góra prawo
+                middle-start: ← Środek lewo
+                middle-center: · Środek środek
+                middle-end: → Środek prawo
+                bottom-start: ↙ Dół lewo
+                bottom-center: ↓ Dół środek
+                bottom-end: ↘ Dół prawo
+
+            caption_text_align:
+              type: select.select
+              label: Wyrównanie tekstu i przycisków
+              default: center
+              options:
+                start: Lewo
+                center: Środek
+                end: Prawo
+
+            caption_width:
+              type: input.text
+              label: Szerokość caption
+              placeholder: '100%, 50%, 600px, auto, fit-content'
+
+            caption_max_width:
+              type: input.text
+              label: Maks. szerokość caption
+              placeholder: '800px, 90%, none'
+
+            caption_padding:
+              type: input.text
+              label: Padding wewnętrzny caption (skrót CSS)
+              placeholder: '1.25rem 1.5rem'
+
+            caption_wrapper_padding:
+              type: input.text
+              label: Odstęp caption od krawędzi karuzeli
+              placeholder: '1.5rem'
+
+            caption_bg_color:
+              type: input.colorpicker
+              label: Domyślny kolor tła caption
+
+            caption_bg_opacity:
+              type: input.text
+              label: Domyślna przezroczystość tła (0–1)
+              placeholder: '0.5'
+
+            caption_bg_blur:
+              type: input.number
+              label: Blur tła caption (px, 0 = wyłącz)
+              min: 0
+              max: 30
+              step: 1
+              placeholder: '0'
+
+            caption_title_tag:
+              type: select.select
+              label: Tag nagłówka tytułu
+              default: h2
+              options:
+                h1: H1
+                h2: H2
+                h3: H3
+                h4: H4
+                h5: H5
+                h6: H6
+                p: p (akapit)
+                div: div (bez semantyki)
+
+            caption_border_radius:
+              type: input.text
+              label: Zaokrąglenie rogów tła caption
+              placeholder: '0.5rem'
+
+            caption_btn_border_radius:
+              type: input.text
+              label: Zaokrąglenie rogów przycisków
+              placeholder: '0.375rem (domyślny Bootstrap)'
+
+        _tab_behavior:
+          label: Zachowanie
+          overrideable: false
+          fields:
+
+            autoplay:
+              type: select.select
+              label: Autoplay
+              default: carousel
+              options:
+                carousel: Autostart (od razu)
+                interaction: Po pierwszej interakcji
+                disable: Wyłącz
+
+            interval:
+              type: input.number
+              label: Domyślny czas slajdu (ms)
+              min: 500
+              max: 60000
+              step: 100
+              placeholder: '5000'
+
+            touch:
+              type: select.select
+              label: Swipe / obsługa dotyku
+              default: enable
+              options:
+                enable: Włącz
+                disable: Wyłącz
+
+            wrap:
+              type: select.select
+              label: Pętla (loop)
+              default: enable
+              options:
+                enable: Włącz
+                disable: Wyłącz
+
+            keyboard:
+              type: select.select
+              label: Klawiatura (strzałki lewo/prawo)
+              default: enable
+              options:
+                enable: Włącz
+                disable: Wyłącz
+
+            pause_hover:
+              type: select.select
+              label: Pauza autoplay na hover
+              default: enable
+              options:
+                enable: Włącz
+                disable: Wyłącz
+
+    copyright:
+      type: separator.note
+      class: alert alert-success
+      content: 'Carousel Bootstrap — wersja 1.0 | <a href="https://web-service.com.pl/" target="_blank">pablop76</a>'
