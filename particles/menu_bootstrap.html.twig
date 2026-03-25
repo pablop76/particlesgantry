@@ -27,6 +27,7 @@
 {# --- Kolory: styl szablonu jako default, particle admin jako override --- #}
 {% set _s_color      = gantry.config.get('styles.navigation.text-color')|default('') %}
 {% set _s_bg         = gantry.config.get('styles.navigation.background')|default('') %}
+{% set _accent2      = gantry.config.get('styles.accent.color-2')|default('#8f4dae') %}
 {# Offcanvas Styles z konfiguracji szablonu (Styles → Offcanvas Styles) #}
 {% set _oc_bg        = gantry.config.get('styles.offcanvas.background')|default('') %}
 {% set _oc_color     = gantry.config.get('styles.offcanvas.text-color')|default('') %}
@@ -326,6 +327,50 @@
 {% if r_item_gap %}
 #{{ id }}-particle .navbar-nav { gap: {{ r_item_gap|e }}; }
 {% endif %}
+#{{ id }}-particle .navbar-nav > .nav-item > .nav-link:not(.dropdown-toggle) {
+    position: relative;
+    text-decoration: none !important;
+}
+#{{ id }}-particle .navbar-nav > .nav-item > .nav-link:not(.dropdown-toggle)::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    right: 50%;
+    height: 2px;
+    background: currentColor;
+    transition: left 0.25s ease, right 0.25s ease;
+}
+#{{ id }}-particle .navbar-nav > .nav-item > .nav-link:not(.dropdown-toggle):hover::after,
+#{{ id }}-particle .navbar-nav > .nav-item > .nav-link:not(.dropdown-toggle):focus::after,
+#{{ id }}-particle .navbar-nav > .nav-item > .nav-link:not(.dropdown-toggle).active::after {
+    left: var(--bs-navbar-nav-link-padding-x, 0.5rem);
+    right: var(--bs-navbar-nav-link-padding-x, 0.5rem);
+}
+{% set _dd_active_bg = r_dd_hover_bg ?: _accent2 %}
+#{{ id }}-particle .dropdown-item {
+    position: relative;
+}
+#{{ id }}-particle .dropdown-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background: currentColor;
+    transition: width 0.2s ease;
+}
+#{{ id }}-particle .dropdown-item.active,
+#{{ id }}-particle .dropdown-item:hover,
+#{{ id }}-particle .dropdown-item:focus {
+    background-color: {{ _dd_active_bg|e }} !important;
+}
+#{{ id }}-particle .dropdown-item.active::before,
+#{{ id }}-particle .dropdown-item:hover::before,
+#{{ id }}-particle .dropdown-item:focus::before {
+    width: 4px;
+}
 #{{ id }}-particle .dropdown-toggle-split:not(:focus-visible) { box-shadow: none; }
 #{{ offcanvas_id }} { position: fixed; overflow-x: hidden; }
 #{{ offcanvas_id }} .nav-link { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
