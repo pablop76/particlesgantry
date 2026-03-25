@@ -16,21 +16,25 @@
 
 {# Opcje karuzeli #}
 {% set transition    = particle.transition|default('slide') %}
-{% set show_controls = particle.controls|default('show') != 'hide' %}
-{% set indicators    = particle.indicators|default('dots') %}
-{% set dark_theme    = particle.dark_theme %}
-{% set height        = particle.height|default('') %}
-{% set extra_class   = particle.class|default('') %}
+{% set show_controls  = particle.controls|default('show') != 'hide' %}
+{% set indicators     = particle.indicators|default('dots') %}
+{% set dark_theme     = particle.dark_theme %}
+{% set height         = particle.height|default('') %}
+{% set height_mobile  = particle.height_mobile|default('') %}
+{% set extra_class    = particle.class|default('') %}
 
 {# Caption — ustawienia globalne #}
 {% set caption_pos    = particle.caption_position|default('bottom-center') %}
 {% set caption_align  = particle.caption_text_align|default('center') %}
 {% set cap_bg_color   = particle.caption_bg_color|default('') %}
-{% set cap_bg_opacity = particle.caption_bg_opacity|default('0.5') %}
 {% set cap_bg_blur    = particle.caption_bg_blur|default('0') %}
-{% set cap_radius     = particle.caption_border_radius|default('0') %}
-{% set title_tag      = particle.caption_title_tag|default('h2') %}
-{% set cap_btn_radius = particle.caption_btn_border_radius|default('') %}
+{% set cap_radius         = particle.caption_border_radius|default('0') %}
+{% set title_tag          = particle.caption_title_tag|default('h2') %}
+{% set cap_btn_radius     = particle.caption_btn_border_radius|default('') %}
+{% set cap_bdr_width      = particle.caption_border_width|default('') %}
+{% set cap_bdr_style      = particle.caption_border_style|default('solid') %}
+{% set cap_bdr_color      = particle.caption_border_color|default('') %}
+{% set cap_bdr_opacity    = particle.caption_border_opacity|default('1') %}
 
 {# Szerokość i padding caption #}
 {% set cap_width           = particle.caption_width|default('100%') %}
@@ -60,8 +64,6 @@
 } %}
 {% set btn_justify = btn_justify_map[caption_align]|default('center') %}
 
-{# Czy w ogóle używamy tła caption #}
-{% set has_global_bg = cap_bg_color or (cap_bg_blur and cap_bg_blur|trim != '0') %}
 
 
 {# ══════════════════════════════════════════════════════════════
@@ -84,6 +86,18 @@
     object-fit: cover;
 }
 {% endif %}
+{% if height_mobile %}
+@media (max-width: 767px) {
+    #{{ carousel_id }} .carousel-item {
+        height: {{ height_mobile|e }};
+    }
+    #{{ carousel_id }} .carousel-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+{% endif %}
 
 /* ── Wrapper pozycjonujący caption ── */
 #{{ carousel_id }} .caption-wrapper {
@@ -96,7 +110,10 @@
     pointer-events: none;
 }
 
-/* ── Kontener wewnętrzny caption ── */
+/* ── Tło + blur caption — wzorzec glassmorphism ── */
+{% if cap_bg_color %}
+#{{ carousel_id }} { --cap-bg-color: {{ cap_bg_color|e }}; }
+{% endif %}
 #{{ carousel_id }} .caption-inner {
     position: relative;
     width: {{ cap_width|e }};
@@ -106,50 +123,14 @@
     padding: {{ cap_padding|e }};
     text-align: {{ caption_align|e }};
     pointer-events: auto;
-}
-
-/* ── Tło caption (kolor + blur) ─── */
-/* Domyślne wartości przez CSS custom properties */
-#{{ carousel_id }} {
-    --cap-bg-color: {{ cap_bg_color ?: 'transparent' }};
-    --cap-bg-opacity: {{ cap_bg_opacity ?: '0.5' }};
-}
-#{{ carousel_id }} .caption-bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background-color: var(--cap-bg-color);
-    opacity: var(--cap-bg-opacity);{% if cap_bg_blur and cap_bg_blur|trim != '0' %}
+    isolation: isolate;{% if cap_bg_color %}
+    background: var(--cap-bg-color);{% endif %}{% if cap_bg_blur and cap_bg_blur|trim != '0' %}
     backdrop-filter: blur({{ cap_bg_blur|e }}px);
-    -webkit-backdrop-filter: blur({{ cap_bg_blur|e }}px);{% endif %}
+    -webkit-backdrop-filter: blur({{ cap_bg_blur|e }}px);{% endif %}{% if cap_bdr_width and cap_bdr_color %}
+    border: {{ cap_bdr_width|e }} {{ cap_bdr_style|e }} {{ cap_bdr_color|e }};{% endif %}
 }
 
-/* ── Treść caption nad tłem ── */
-#{{ carousel_id }} .caption-content {
-    position: relative;
-    z-index: 1;
-}
 
-/* ── Typografia caption ── */
-#{{ carousel_id }} .caption-subtitle {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    opacity: 0.85;
-    margin-bottom: 0.375rem;
-}
-#{{ carousel_id }} .caption-title {
-    font-size: clamp(1.25rem, 2.5vw + 0.5rem, 2.25rem);
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 0.625rem;
-}
-#{{ carousel_id }} .caption-text {
-    font-size: clamp(0.875rem, 1vw + 0.4rem, 1rem);
-    margin-bottom: 1.25rem;
-    line-height: 1.6;
-}
 #{{ carousel_id }} .caption-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -162,6 +143,67 @@
 #{{ carousel_id }} .caption-buttons .btn {
     border-radius: {{ cap_btn_radius|e }};
 }
+{% endif %}
+
+/* ── Animacje przycisków ── */
+{% set b1_anim = particle.btn1_animation|default('none') %}
+{% set b2_anim = particle.btn2_animation|default('none') %}
+{% if b1_anim == 'pulse' or b2_anim == 'pulse' %}
+@keyframes cbp-pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.06); }
+}
+#{{ carousel_id }} .btn-anim-pulse {
+    animation: cbp-pulse 1.8s ease-in-out infinite;
+}
+{% endif %}
+{% if b1_anim == 'bounce' or b2_anim == 'bounce' %}
+@keyframes cbp-bounce {
+    0%, 100% { transform: translateY(0); }
+    40%      { transform: translateY(-8px); }
+    70%      { transform: translateY(-4px); }
+}
+#{{ carousel_id }} .btn-anim-bounce:hover {
+    animation: cbp-bounce 0.45s ease;
+}
+{% endif %}
+{% if b1_anim == 'shake' or b2_anim == 'shake' %}
+@keyframes cbp-shake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-5px); }
+    40%      { transform: translateX(5px); }
+    60%      { transform: translateX(-3px); }
+    80%      { transform: translateX(3px); }
+}
+#{{ carousel_id }} .btn-anim-shake:hover {
+    animation: cbp-shake 0.4s ease;
+}
+{% endif %}
+{% if b1_anim == 'glow' or b2_anim == 'glow' %}
+#{{ carousel_id }} .btn-anim-glow {
+    transition: box-shadow 0.3s ease;
+}
+#{{ carousel_id }} .btn-anim-glow:hover {
+    box-shadow: 0 0 14px 4px rgba(255, 255, 255, 0.45);
+}
+{% endif %}
+{% if b1_anim == 'lift' or b2_anim == 'lift' %}
+#{{ carousel_id }} .btn-anim-lift {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+#{{ carousel_id }} .btn-anim-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+{% endif %}
+{% if b1_anim == 'icon-slide' or b2_anim == 'icon-slide' %}
+#{{ carousel_id }} .btn-anim-icon-slide .btn-icon-left,
+#{{ carousel_id }} .btn-anim-icon-slide .btn-icon-right {
+    display: inline-block;
+    transition: transform 0.25s ease;
+}
+#{{ carousel_id }} .btn-anim-icon-slide:hover .btn-icon-left  { transform: translateX(-4px); }
+#{{ carousel_id }} .btn-anim-icon-slide:hover .btn-icon-right { transform: translateX(4px); }
 {% endif %}
 
 /* ── Wskaźniki numeryczne ── */
@@ -191,6 +233,18 @@
 
 
 {# ══════════════════════════════════════════════════════════════
+   MAKRO — ikona przycisku (FA lub własny obraz)
+   ══════════════════════════════════════════════════════════════ #}
+{% macro btn_icon(fa_class, img_src, img_size, side) %}
+    {%- if img_src -%}
+        {%- set sz = img_size ?: '1em' -%}
+        <img src="{{ url(img_src)|e }}" class="btn-icon-{{ side }}" width="{{ sz|e }}" height="{{ sz|e }}" alt="" aria-hidden="true" style="vertical-align:middle">
+    {%- elseif fa_class -%}
+        <i class="{{ fa_class|e }} btn-icon-{{ side }}" aria-hidden="true"></i>
+    {%- endif %}
+{% endmacro %}
+
+{# ══════════════════════════════════════════════════════════════
    HTML
    ══════════════════════════════════════════════════════════════ #}
 {% block particle %}
@@ -208,7 +262,7 @@
      {% if particle.autoplay != 'disable' %}data-bs-ride="{{ particle.autoplay == 'carousel' ? 'carousel' : 'true' }}"{% endif %}>
 
     {# ── Wskaźniki slajdów ── #}
-    {% if indicators != 'none' %}
+    {% if indicators != 'none' and active_items|length > 1 %}
     <div class="carousel-indicators">
         {% for item in active_items %}
         <button type="button"
@@ -224,14 +278,9 @@
     <div class="carousel-inner">
         {% for item in active_items %}
 
-        {# Per-slide bg override przez CSS custom properties #}
-        {% set has_slide_bg = item.bg_color %}
-        {% set slide_opacity = item.bg_opacity|default(cap_bg_opacity)|default('0.5') %}
-        {% set show_caption_bg = has_global_bg or has_slide_bg %}
-
         <div class="carousel-item{% if loop.first %} active{% endif %}"
              {% if item.interval %}data-bs-interval="{{ item.interval|e }}"{% endif %}
-             {% if has_slide_bg %}style="--cap-bg-color:{{ item.bg_color|e }};--cap-bg-opacity:{{ slide_opacity|e }}"{% endif %}>
+             {% if item.bg_color %}style="--cap-bg-color:{{ item.bg_color|e }}"{% endif %}>
 
             {# Obraz tła slajdu #}
             {% if item.image %}
@@ -243,49 +292,86 @@
             {% endif %}
 
             {# Caption — renderuj tylko gdy jest jakakolwiek treść #}
-            {% if item.subtitle or item.title or item.text or item.btn1_text or item.btn2_text %}
+            {% set has_buttons = particle.btn1_text or particle.btn2_text %}
+            {% if item.subtitle or item.title or item.text or has_buttons %}
             <div class="caption-wrapper">
                 <div class="caption-inner">
-
-                    {# Warstwa tła (kolor + blur) #}
-                    {% if show_caption_bg %}
-                    <div class="caption-bg" aria-hidden="true"></div>
-                    {% endif %}
-
+                    {% set html_ok = item.allow_html %}
                     <div class="caption-content">
                         {% if item.subtitle %}
-                        <p class="caption-subtitle">{{ item.subtitle|e }}</p>
+                        <p class="caption-subtitle"{% if item.subtitle_color %} style="color:{{ item.subtitle_color|e }}"{% endif %}>{{ html_ok ? item.subtitle|raw : item.subtitle|e }}</p>
                         {% endif %}
 
                         {% if item.title or item.title2 %}
                         <{{ title_tag }} class="caption-title">
                             {%- if item.title -%}
-                            <span{% if item.title_color %} style="color:{{ item.title_color|e }}"{% endif %}>{{ item.title|e }}</span>
+                            <span{% if item.title_color %} style="color:{{ item.title_color|e }}"{% endif %}>{{ html_ok ? item.title|raw : item.title|e }}</span>
                             {%- endif -%}
                             {%- if item.title2 -%}
-                            <span{% if item.title2_color %} style="color:{{ item.title2_color|e }}"{% endif %}>{{ item.title2|e }}</span>
+                            <span{% if item.title2_color %} style="color:{{ item.title2_color|e }}"{% endif %}>{{ html_ok ? item.title2|raw : item.title2|e }}</span>
                             {%- endif -%}
                         </{{ title_tag }}>
                         {% endif %}
 
                         {% if item.text %}
-                        <p class="caption-text">{{ item.text|e }}</p>
+                        {% if html_ok %}<div class="caption-text">{{ item.text|raw }}</div>
+                        {% else %}<p class="caption-text">{{ item.text|e }}</p>{% endif %}
                         {% endif %}
 
-                        {% if item.btn1_text or item.btn2_text %}
+                        {% if has_buttons %}
                         <div class="caption-buttons">
-                            {% if item.btn1_text %}
-                            <a href="{{ item.btn1_url|default('#')|e }}"
-                               class="btn {{ item.btn1_style|default('btn-primary')|e }}"
-                               {% if item.btn1_target == '_blank' %}target="_blank" rel="noopener noreferrer"{% endif %}>
-                                {{ item.btn1_text|e }}
+                            {% if particle.btn1_text %}
+                            {% set b1_icon     = particle.btn1_icon|default('') %}
+                            {% set b1_icon_img = particle.btn1_icon_img|default('') %}
+                            {% set b1_icon_sz  = particle.btn1_icon_img_size|default('') %}
+                            {% set b1_has_icon = b1_icon or b1_icon_img %}
+                            {% set b1_pos      = particle.btn1_icon_pos|default('right') %}
+                            {% set b1_anim     = particle.btn1_animation|default('none') %}
+                            {% set b1_tt       = particle.btn1_text_transform|default('none') %}
+                            {% set b1_styles = [] %}
+                            {% if particle.btn1_bg_color     %}{% set b1_styles = b1_styles|merge(['background-color:' ~ particle.btn1_bg_color|e ~ ';border-color:' ~ particle.btn1_bg_color|e]) %}{% endif %}
+                            {% if particle.btn1_border_color %}{% set b1_styles = b1_styles|merge(['border-color:' ~ particle.btn1_border_color|e]) %}{% endif %}
+                            {% if particle.btn1_border_width %}{% set b1_styles = b1_styles|merge(['border-width:' ~ particle.btn1_border_width|e ~ ';border-style:' ~ (particle.btn1_border_style|default('solid')|e)]) %}{% endif %}
+                            {% if particle.btn1_text_color   %}{% set b1_styles = b1_styles|merge(['color:' ~ particle.btn1_text_color|e]) %}{% endif %}
+                            {% if b1_tt                      %}{% set b1_styles = b1_styles|merge(['text-transform:' ~ b1_tt|e]) %}{% endif %}
+                            {% set b1_classes = ['btn', particle.btn1_style|default('btn-primary')]
+                                |merge(b1_anim != 'none' ? ['btn-anim-' ~ b1_anim] : [])
+                                |join(' ') %}
+                            <a href="{{ particle.btn1_url|default('#')|e }}"
+                               class="{{ b1_classes|e }}"
+                               {% if b1_styles %}style="{{ b1_styles|join(';')|e }}"{% endif %}
+                               {% if particle.btn1_target == '_blank' %}target="_blank" rel="noopener noreferrer"{% endif %}
+                               {% if b1_pos == 'only' %}aria-label="{{ particle.btn1_text|e }}"{% endif %}>
+                                {%- if b1_has_icon and b1_pos == 'left' -%}{{ _self.btn_icon(b1_icon, b1_icon_img, b1_icon_sz, 'left') }} {% endif -%}
+                                {%- if b1_pos != 'only' -%}{{ particle.btn1_text|e }}{%- endif -%}
+                                {%- if b1_has_icon and b1_pos in ['right', 'only'] %} {{ _self.btn_icon(b1_icon, b1_icon_img, b1_icon_sz, 'right') }}{%- endif -%}
                             </a>
                             {% endif %}
-                            {% if item.btn2_text %}
-                            <a href="{{ item.btn2_url|default('#')|e }}"
-                               class="btn {{ item.btn2_style|default('btn-outline-light')|e }}"
-                               {% if item.btn2_target == '_blank' %}target="_blank" rel="noopener noreferrer"{% endif %}>
-                                {{ item.btn2_text|e }}
+                            {% if particle.btn2_text %}
+                            {% set b2_icon     = particle.btn2_icon|default('') %}
+                            {% set b2_icon_img = particle.btn2_icon_img|default('') %}
+                            {% set b2_icon_sz  = particle.btn2_icon_img_size|default('') %}
+                            {% set b2_has_icon = b2_icon or b2_icon_img %}
+                            {% set b2_pos      = particle.btn2_icon_pos|default('right') %}
+                            {% set b2_anim     = particle.btn2_animation|default('none') %}
+                            {% set b2_tt       = particle.btn2_text_transform|default('none') %}
+                            {% set b2_styles = [] %}
+                            {% if particle.btn2_bg_color     %}{% set b2_styles = b2_styles|merge(['background-color:' ~ particle.btn2_bg_color|e ~ ';border-color:' ~ particle.btn2_bg_color|e]) %}{% endif %}
+                            {% if particle.btn2_border_color %}{% set b2_styles = b2_styles|merge(['border-color:' ~ particle.btn2_border_color|e]) %}{% endif %}
+                            {% if particle.btn2_border_width %}{% set b2_styles = b2_styles|merge(['border-width:' ~ particle.btn2_border_width|e ~ ';border-style:' ~ (particle.btn2_border_style|default('solid')|e)]) %}{% endif %}
+                            {% if particle.btn2_text_color   %}{% set b2_styles = b2_styles|merge(['color:' ~ particle.btn2_text_color|e]) %}{% endif %}
+                            {% if b2_tt                      %}{% set b2_styles = b2_styles|merge(['text-transform:' ~ b2_tt|e]) %}{% endif %}
+                            {% set b2_classes = ['btn', particle.btn2_style|default('btn-outline-light')]
+                                |merge(b2_anim != 'none' ? ['btn-anim-' ~ b2_anim] : [])
+                                |join(' ') %}
+                            <a href="{{ particle.btn2_url|default('#')|e }}"
+                               class="{{ b2_classes|e }}"
+                               {% if b2_styles %}style="{{ b2_styles|join(';')|e }}"{% endif %}
+                               {% if particle.btn2_target == '_blank' %}target="_blank" rel="noopener noreferrer"{% endif %}
+                               {% if b2_pos == 'only' %}aria-label="{{ particle.btn2_text|e }}"{% endif %}>
+                                {%- if b2_has_icon and b2_pos == 'left' -%}{{ _self.btn_icon(b2_icon, b2_icon_img, b2_icon_sz, 'left') }} {% endif -%}
+                                {%- if b2_pos != 'only' -%}{{ particle.btn2_text|e }}{%- endif -%}
+                                {%- if b2_has_icon and b2_pos in ['right', 'only'] %} {{ _self.btn_icon(b2_icon, b2_icon_img, b2_icon_sz, 'right') }}{%- endif -%}
                             </a>
                             {% endif %}
                         </div>
@@ -301,7 +387,7 @@
     </div>
 
     {# ── Strzałki nawigacji ── #}
-    {% if show_controls %}
+    {% if show_controls and active_items|length > 1 %}
     <button class="carousel-control-prev" type="button"
             data-bs-target="#{{ carousel_id }}" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>

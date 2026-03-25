@@ -35,9 +35,16 @@ form:
                   type: input.text
                   label: 'Etykieta w panelu admina (nie wyświetla się na stronie)'
                   placeholder: 'np. Slajd 1 — Hero'
+                .allow_html:
+                  type: input.checkbox
+                  label: Zezwól na HTML w caption
+                  default: false
                 .subtitle:
                   type: input.text
                   label: Podtytuł (wyświetlany nad tytułem)
+                .subtitle_color:
+                  type: input.colorpicker
+                  label: Podtytuł — kolor tekstu
                 ._sep_title:
                   type: separator.note
                   class: alert alert-info
@@ -63,83 +70,13 @@ form:
                 .image_alt:
                   type: input.text
                   label: Tekst alternatywny obrazu
-                ._sep_btns:
-                  type: separator.note
-                  class: alert alert-info
-                  content: 'Przyciski'
-                .btn1_text:
-                  type: input.text
-                  label: Przycisk 1 — Tekst
-                .btn1_url:
-                  type: input.text
-                  label: Przycisk 1 — URL
-                  placeholder: 'https://'
-                .btn1_style:
-                  type: select.select
-                  label: Przycisk 1 — Styl
-                  default: btn-primary
-                  options:
-                    btn-primary: Primary
-                    btn-secondary: Secondary
-                    btn-success: Success
-                    btn-warning: Warning
-                    btn-danger: Danger
-                    btn-info: Info
-                    btn-light: Light
-                    btn-dark: Dark
-                    btn-outline-primary: Outline Primary
-                    btn-outline-secondary: Outline Secondary
-                    btn-outline-light: Outline Light
-                    btn-outline-dark: Outline Dark
-                .btn1_target:
-                  type: select.select
-                  label: Przycisk 1 — Otwórz w
-                  default: _self
-                  options:
-                    _self: Tym samym oknie
-                    _blank: Nowym oknie
-                .btn2_text:
-                  type: input.text
-                  label: Przycisk 2 — Tekst
-                .btn2_url:
-                  type: input.text
-                  label: Przycisk 2 — URL
-                  placeholder: 'https://'
-                .btn2_style:
-                  type: select.select
-                  label: Przycisk 2 — Styl
-                  default: btn-outline-light
-                  options:
-                    btn-primary: Primary
-                    btn-secondary: Secondary
-                    btn-success: Success
-                    btn-warning: Warning
-                    btn-danger: Danger
-                    btn-info: Info
-                    btn-light: Light
-                    btn-dark: Dark
-                    btn-outline-primary: Outline Primary
-                    btn-outline-secondary: Outline Secondary
-                    btn-outline-light: Outline Light
-                    btn-outline-dark: Outline Dark
-                .btn2_target:
-                  type: select.select
-                  label: Przycisk 2 — Otwórz w
-                  default: _self
-                  options:
-                    _self: Tym samym oknie
-                    _blank: Nowym oknie
                 ._sep_slide_bg:
                   type: separator.note
                   class: alert alert-info
                   content: 'Tło caption — nadpisuje ustawienia globalne'
                 .bg_color:
                   type: input.colorpicker
-                  label: Kolor tła caption (per slajd)
-                .bg_opacity:
-                  type: input.text
-                  label: Przezroczystość tła (0–1)
-                  placeholder: 'Domyślna z zakładki Wygląd'
+                  label: Kolor tła caption (per slajd — nadpisuje ustawienie globalne)
                 .interval:
                   type: input.number
                   label: Czas wyświetlania slajdu (ms)
@@ -190,8 +127,13 @@ form:
 
             height:
               type: input.text
-              label: Wysokość karuzeli
+              label: Wysokość karuzeli (desktop)
               placeholder: '500px, 60vh, auto'
+
+            height_mobile:
+              type: input.text
+              label: Wysokość karuzeli (mobile, ≤767px)
+              placeholder: '250px, 40vh — puste = brak zmiany'
 
             class:
               type: input.text
@@ -250,11 +192,6 @@ form:
               type: input.colorpicker
               label: Domyślny kolor tła caption
 
-            caption_bg_opacity:
-              type: input.text
-              label: Domyślna przezroczystość tła (0–1)
-              placeholder: '0.5'
-
             caption_bg_blur:
               type: input.number
               label: Blur tła caption (px, 0 = wyłącz)
@@ -281,6 +218,267 @@ form:
               type: input.text
               label: Zaokrąglenie rogów tła caption
               placeholder: '0.5rem'
+
+            _sep_caption_border:
+              type: separator.note
+              class: alert alert-info
+              content: 'Obramowanie caption'
+
+            caption_border_width:
+              type: input.text
+              label: Grubość obramowania
+              placeholder: '1px, 2px'
+
+            caption_border_style:
+              type: select.select
+              label: Styl obramowania
+              default: solid
+              options:
+                solid: Ciągła (solid)
+                dashed: Kreskowana (dashed)
+                dotted: Kropkowana (dotted)
+                double: Podwójna (double)
+
+            caption_border_color:
+              type: input.colorpicker
+              label: Kolor obramowania
+
+        _tab_buttons:
+          label: Przyciski
+          fields:
+
+            _sep_btn1:
+              type: separator.note
+              class: alert alert-info
+              content: 'Przycisk 1'
+
+            btn1_text:
+              type: input.text
+              label: Przycisk 1 — Tekst
+
+            btn1_url:
+              type: input.text
+              label: Przycisk 1 — URL
+              placeholder: 'https://'
+
+            btn1_style:
+              type: select.select
+              label: Przycisk 1 — Styl
+              default: btn-primary
+              options:
+                btn-primary: Primary
+                btn-secondary: Secondary
+                btn-success: Success
+                btn-warning: Warning
+                btn-danger: Danger
+                btn-info: Info
+                btn-light: Light
+                btn-dark: Dark
+                btn-outline-primary: Outline Primary
+                btn-outline-secondary: Outline Secondary
+                btn-outline-light: Outline Light
+                btn-outline-dark: Outline Dark
+                btn-link: Tekstowy (link)
+
+            btn1_icon:
+              type: input.icon
+              label: Przycisk 1 — Ikona (Font Awesome)
+
+            btn1_icon_img:
+              type: input.imagepicker
+              label: Przycisk 1 — Własny obraz ikony (nadpisuje FA)
+
+            btn1_icon_img_size:
+              type: input.text
+              label: Przycisk 1 — Rozmiar obrazu ikony
+              placeholder: '20px, 1.5rem, 1em'
+
+            btn1_icon_pos:
+              type: select.select
+              label: Przycisk 1 — Pozycja ikony
+              default: right
+              options:
+                left: Po lewej (przed tekstem)
+                right: Po prawej (za tekstem)
+                only: Tylko ikona (bez tekstu)
+
+            btn1_bg_color:
+              type: input.colorpicker
+              label: Przycisk 1 — Własny kolor tła
+
+            btn1_text_color:
+              type: input.colorpicker
+              label: Przycisk 1 — Własny kolor tekstu
+
+            btn1_border_color:
+              type: input.colorpicker
+              label: Przycisk 1 — Własny kolor obramowania
+
+            btn1_border_width:
+              type: input.text
+              label: Przycisk 1 — Grubość obramowania
+              placeholder: '1px, 2px'
+
+            btn1_border_style:
+              type: select.select
+              label: Przycisk 1 — Styl obramowania
+              default: solid
+              options:
+                solid: Ciągła (solid)
+                dashed: Kreskowana (dashed)
+                dotted: Kropkowana (dotted)
+                double: Podwójna (double)
+
+            btn1_text_transform:
+              type: select.select
+              label: Przycisk 1 — Wielkość liter
+              default: none
+              options:
+                '': Domyślna (z motywu)
+                none: Normalna
+                uppercase: WIELKIE LITERY
+                lowercase: małe litery
+                capitalize: Pierwsze Duże
+
+            btn1_animation:
+              type: select.select
+              label: Przycisk 1 — Animacja
+              default: none
+              options:
+                none: Brak
+                pulse: Pulsowanie (ciągłe)
+                bounce: Odbijanie (hover)
+                shake: Drżenie (hover)
+                glow: Poświata (hover)
+                lift: Unoszenie (hover)
+                icon-slide: Ikona przesuwa się (hover)
+
+            btn1_target:
+              type: select.select
+              label: Przycisk 1 — Otwórz w
+              default: _self
+              options:
+                _self: Tym samym oknie
+                _blank: Nowym oknie
+
+            _sep_btn2:
+              type: separator.note
+              class: alert alert-info
+              content: 'Przycisk 2'
+
+            btn2_text:
+              type: input.text
+              label: Przycisk 2 — Tekst
+
+            btn2_url:
+              type: input.text
+              label: Przycisk 2 — URL
+              placeholder: 'https://'
+
+            btn2_style:
+              type: select.select
+              label: Przycisk 2 — Styl
+              default: btn-outline-light
+              options:
+                btn-primary: Primary
+                btn-secondary: Secondary
+                btn-success: Success
+                btn-warning: Warning
+                btn-danger: Danger
+                btn-info: Info
+                btn-light: Light
+                btn-dark: Dark
+                btn-outline-primary: Outline Primary
+                btn-outline-secondary: Outline Secondary
+                btn-outline-light: Outline Light
+                btn-outline-dark: Outline Dark
+                btn-link: Tekstowy (link)
+
+            btn2_icon:
+              type: input.icon
+              label: Przycisk 2 — Ikona (Font Awesome)
+
+            btn2_icon_img:
+              type: input.imagepicker
+              label: Przycisk 2 — Własny obraz ikony (nadpisuje FA)
+
+            btn2_icon_img_size:
+              type: input.text
+              label: Przycisk 2 — Rozmiar obrazu ikony
+              placeholder: '20px, 1.5rem, 1em'
+
+            btn2_icon_pos:
+              type: select.select
+              label: Przycisk 2 — Pozycja ikony
+              default: right
+              options:
+                left: Po lewej (przed tekstem)
+                right: Po prawej (za tekstem)
+                only: Tylko ikona (bez tekstu)
+
+            btn2_bg_color:
+              type: input.colorpicker
+              label: Przycisk 2 — Własny kolor tła
+
+            btn2_text_color:
+              type: input.colorpicker
+              label: Przycisk 2 — Własny kolor tekstu
+
+            btn2_border_color:
+              type: input.colorpicker
+              label: Przycisk 2 — Własny kolor obramowania
+
+            btn2_border_width:
+              type: input.text
+              label: Przycisk 2 — Grubość obramowania
+              placeholder: '1px, 2px'
+
+            btn2_border_style:
+              type: select.select
+              label: Przycisk 2 — Styl obramowania
+              default: solid
+              options:
+                solid: Ciągła (solid)
+                dashed: Kreskowana (dashed)
+                dotted: Kropkowana (dotted)
+                double: Podwójna (double)
+
+            btn2_text_transform:
+              type: select.select
+              label: Przycisk 2 — Wielkość liter
+              default: none
+              options:
+                '': Domyślna (z motywu)
+                none: Normalna
+                uppercase: WIELKIE LITERY
+                lowercase: małe litery
+                capitalize: Pierwsze Duże
+
+            btn2_animation:
+              type: select.select
+              label: Przycisk 2 — Animacja
+              default: none
+              options:
+                none: Brak
+                pulse: Pulsowanie (ciągłe)
+                bounce: Odbijanie (hover)
+                shake: Drżenie (hover)
+                glow: Poświata (hover)
+                lift: Unoszenie (hover)
+                icon-slide: Ikona przesuwa się (hover)
+
+            btn2_target:
+              type: select.select
+              label: Przycisk 2 — Otwórz w
+              default: _self
+              options:
+                _self: Tym samym oknie
+                _blank: Nowym oknie
+
+            _sep_btn_style:
+              type: separator.note
+              class: alert alert-info
+              content: 'Styl przycisków'
 
             caption_btn_border_radius:
               type: input.text
