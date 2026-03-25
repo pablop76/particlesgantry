@@ -327,11 +327,11 @@
 {% if r_item_gap %}
 #{{ id }}-particle .navbar-nav { gap: {{ r_item_gap|e }}; }
 {% endif %}
-#{{ id }}-particle .navbar-nav > .nav-item > .nav-link:not(.dropdown-toggle) {
+#{{ id }}-particle .navbar-nav:not(.g-nav-social) > .nav-item > .nav-link:not(.dropdown-toggle) {
     position: relative;
     text-decoration: none !important;
 }
-#{{ id }}-particle .navbar-nav > .nav-item > .nav-link:not(.dropdown-toggle)::after {
+#{{ id }}-particle .navbar-nav:not(.g-nav-social) > .nav-item > .nav-link:not(.dropdown-toggle)::after {
     content: '';
     position: absolute;
     bottom: 4px;
@@ -341,9 +341,9 @@
     background: currentColor;
     transition: left 0.25s ease, right 0.25s ease;
 }
-#{{ id }}-particle .navbar-nav > .nav-item > .nav-link:not(.dropdown-toggle):hover::after,
-#{{ id }}-particle .navbar-nav > .nav-item > .nav-link:not(.dropdown-toggle):focus::after,
-#{{ id }}-particle .navbar-nav > .nav-item > .nav-link:not(.dropdown-toggle).active::after {
+#{{ id }}-particle .navbar-nav:not(.g-nav-social) > .nav-item > .nav-link:not(.dropdown-toggle):hover::after,
+#{{ id }}-particle .navbar-nav:not(.g-nav-social) > .nav-item > .nav-link:not(.dropdown-toggle):focus::after,
+#{{ id }}-particle .navbar-nav:not(.g-nav-social) > .nav-item > .nav-link:not(.dropdown-toggle).active::after {
     left: var(--bs-navbar-nav-link-padding-x, 0.5rem);
     right: var(--bs-navbar-nav-link-padding-x, 0.5rem);
 }
