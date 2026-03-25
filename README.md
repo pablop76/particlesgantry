@@ -43,6 +43,33 @@ Pełnoprawna nawigacja Joomla oparta na **Bootstrap 5.3** z offcanvas na mobile.
 
 > Bootstrap 5.3 jest wbudowany w Joomla 5+ — cząstka ładuje go z `/media/vendor/bootstrap/`, nie wymaga dodatkowej instalacji.
 
+### Carousel Bootstrap
+
+> `particles/carousel_bootstrap.yaml` + `particles/carousel_bootstrap.html.twig`
+
+Karuzela slajdów oparta na **Bootstrap 5.3** z pełną konfiguracją przez panel admina Gantry.
+
+**Funkcje:**
+- Animacja przejścia: slide lub crossfade
+- 9-punktowe pozycjonowanie caption (góra/środek/dół × lewo/środek/prawo)
+- Tło caption z efektem glassmorphism — kolor `rgba()` + blur (`backdrop-filter`)
+- Obramowanie caption: grubość, styl, kolor
+- Dwa globalne przyciski CTA z pełną konfiguracją:
+  - Styl Bootstrap, własne kolory tła/tekstu/obramowania
+  - Ikony Font Awesome (natywny picker) lub własny obrazek
+  - Pozycja ikony: lewa / prawa / tylko ikona
+  - Animacje: pulse, bounce, shake, glow, lift, icon-slide
+  - Transformacja tekstu i zaokrąglenie rogów
+- Per-slajd: tło caption, kolor podtytułu, czas wyświetlania, opcja HTML w treści
+- Wskaźniki: kropki / numery / ukryte
+- Wysokość karuzeli osobno dla desktop i mobile (≤767px)
+- Autoplay, swipe, pętla, klawiatura, pauza na hover — wszystko konfigurowalne
+- Nawigacja (strzałki + wskaźniki) ukrywana automatycznie przy jednym slajdzie
+
+**Wymagania:** Joomla 5+ / 6+, Gantry 5, szablon z Bootstrap 5 (np. Helium)
+
+> Bootstrap 5.3 jest wbudowany w Joomla 5+ — cząstka ładuje go z `/media/vendor/bootstrap/`, nie wymaga dodatkowej instalacji.
+
 ### Gallery Lightbox
 
 > `particles/gallery_lightbox.yaml` + `particles/gallery_lightbox.html.twig` + `particles/js/bs5-lightbox.bundle.min.js`
