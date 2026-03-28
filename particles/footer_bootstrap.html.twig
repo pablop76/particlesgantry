@@ -111,10 +111,13 @@
 #{{ footer_id }} .ft-hours-table td:last-child { text-align: right; }
 #{{ footer_id }} .ft-hours-table tr.ft-highlight td { font-weight: 600; }
 {% if r_contact_icon_color or r_contact_icon_size %}
-#{{ footer_id }} .ft-contact-icon {
+#{{ footer_id }} .ft-contact-icon,
+#{{ footer_id }} .ft-contact-icon img {
 {% if r_contact_icon_color %}    color: {{ r_contact_icon_color|e }};
 {% endif %}
 {% if r_contact_icon_size %}    font-size: {{ r_contact_icon_size|e }};
+    width: {{ r_contact_icon_size|e }};
+    height: {{ r_contact_icon_size|e }};
 {% endif %}
 }
 {% endif %}
@@ -129,6 +132,17 @@
 {% endif %}
 {% endblock %}
 
+
+{# Makro: renderuje ikonę kontaktu — SVG/PNG ma pierwszeństwo przed FA #}
+{% macro contactIcon(fa_icon, custom_icon, size_style) %}
+    {% if custom_icon %}
+    <img src="{{ url(custom_icon)|e }}" alt="" role="presentation" decoding="async"
+         style="width:1em;height:1em;object-fit:contain{% if size_style %};{{ size_style }}{% endif %}">
+    {% elseif fa_icon %}
+    <span class="{{ fa_icon|e }}" aria-hidden="true"></span>
+    {% endif %}
+{% endmacro %}
+{% import _self as self %}
 
 {# ============================================================
    Particle HTML
@@ -289,8 +303,8 @@
                     {# Telefon #}
                     {% if particle.phone %}
                     <div class="ft-contact-item">
-                        {% if particle.phone_icon %}
-                        <span class="{{ particle.phone_icon|e }} ft-contact-icon" aria-hidden="true"></span>
+                        {% if particle.phone_custom_icon or particle.phone_icon %}
+                        <span class="ft-contact-icon">{{ self.contactIcon(particle.phone_icon, particle.phone_custom_icon, '') }}</span>
                         {% endif %}
                         <div>
                             {% if particle.phone_label %}
@@ -304,8 +318,8 @@
                     {# E-mail #}
                     {% if particle.email %}
                     <div class="ft-contact-item">
-                        {% if particle.email_icon %}
-                        <span class="{{ particle.email_icon|e }} ft-contact-icon" aria-hidden="true"></span>
+                        {% if particle.email_custom_icon or particle.email_icon %}
+                        <span class="ft-contact-icon">{{ self.contactIcon(particle.email_icon, particle.email_custom_icon, '') }}</span>
                         {% endif %}
                         <div>
                             {% if particle.email_label %}
@@ -319,8 +333,8 @@
                     {# Adres #}
                     {% if particle.address_street %}
                     <div class="ft-contact-item">
-                        {% if particle.address_icon %}
-                        <span class="{{ particle.address_icon|e }} ft-contact-icon" aria-hidden="true"></span>
+                        {% if particle.address_custom_icon or particle.address_icon %}
+                        <span class="ft-contact-icon">{{ self.contactIcon(particle.address_icon, particle.address_custom_icon, '') }}</span>
                         {% endif %}
                         <div>
                             {% if particle.address_label %}

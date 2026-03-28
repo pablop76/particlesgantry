@@ -178,8 +178,13 @@ form:
 
             phone_icon:
               type: input.icon
-              label: Ikona telefonu
+              label: Ikona telefonu (FA)
               default: 'fa fa-phone'
+
+            phone_custom_icon:
+              type: input.imagepicker
+              label: Własna ikona telefonu (SVG/PNG)
+              description: Nadpisuje ikonę FA gdy ustawiona.
 
             phone_label:
               type: input.text
@@ -198,8 +203,13 @@ form:
 
             email_icon:
               type: input.icon
-              label: Ikona e-mail
+              label: Ikona e-mail (FA)
               default: 'fa fa-envelope'
+
+            email_custom_icon:
+              type: input.imagepicker
+              label: Własna ikona e-mail (SVG/PNG)
+              description: Nadpisuje ikonę FA gdy ustawiona.
 
             email_label:
               type: input.text
@@ -223,8 +233,13 @@ form:
 
             address_icon:
               type: input.icon
-              label: Ikona adresu
+              label: Ikona adresu (FA)
               default: 'fa fa-map-marker'
+
+            address_custom_icon:
+              type: input.imagepicker
+              label: Własna ikona adresu (SVG/PNG)
+              description: Nadpisuje ikonę FA gdy ustawiona.
 
             address_label:
               type: input.text
