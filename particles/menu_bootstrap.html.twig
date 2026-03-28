@@ -431,6 +431,8 @@
 {% if nav_shadow %}    box-shadow: 0 2px 6px rgba(0,0,0,.12);{% endif %}
 }
 {% if sticky_class == 'scroll-up' %}
+#{{ id }}-particle { will-change: transform; }
+#{{ id }}-particle .container-fluid { width: 100%; }
 #{{ id }}-particle.navbar-is-sticky { transition: transform 0.3s ease; }
 #{{ id }}-particle.navbar-is-sticky.navbar-hidden { transform: translateY(-100%); }
 #{{ id }}-particle.navbar-no-transition,
