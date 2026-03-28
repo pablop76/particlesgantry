@@ -11,7 +11,7 @@
 {# URL-e biblioteki Leaflet — CDN lub lokalny plik #}
 {% if r_source == 'local' %}
     {% set r_leaflet_js_url  = url('gantry-theme://custom/particles/js/leaflet.min.js') %}
-    {% set r_leaflet_css_url = url('gantry-theme://custom/particles/js/leaflet.min.css') %}
+    {% set r_leaflet_css_url = url('gantry-theme://custom/particles/css/leaflet.min.css') %}
 {% else %}
     {% set r_leaflet_js_url  = 'https://cdn.jsdelivr.net/npm/leaflet@' ~ r_version ~ '/dist/leaflet.min.js' %}
     {% set r_leaflet_css_url = 'https://cdn.jsdelivr.net/npm/leaflet@' ~ r_version ~ '/dist/leaflet.min.css' %}
