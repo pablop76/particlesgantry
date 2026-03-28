@@ -6,6 +6,17 @@
 
 {% set map_id       = 'leaflet-map-' ~ id %}
 {% set r_version    = particle.leaflet_version|default('1.9.4')|e %}
+{% set r_source     = particle.leaflet_source|default('cdn') %}
+
+{# URL-e biblioteki Leaflet — CDN lub lokalny plik #}
+{% if r_source == 'local' %}
+    {% set r_leaflet_js_url  = url('gantry-theme://custom/particles/js/leaflet.min.js') %}
+    {% set r_leaflet_css_url = url('gantry-theme://custom/particles/js/leaflet.min.css') %}
+{% else %}
+    {% set r_leaflet_js_url  = 'https://cdn.jsdelivr.net/npm/leaflet@' ~ r_version ~ '/dist/leaflet.min.js' %}
+    {% set r_leaflet_css_url = 'https://cdn.jsdelivr.net/npm/leaflet@' ~ r_version ~ '/dist/leaflet.min.css' %}
+{% endif %}
+
 {% set r_lat        = particle.lat|default('52.2297')|replace({',': '.'})|e %}
 {% set r_lng        = particle.lng|default('21.0122')|replace({',': '.'})|e %}
 {% set r_zoom       = particle.zoom|default(13)|e %}
@@ -57,7 +68,7 @@
    ============================================================ #}
 {% block stylesheets %}
 {% if particle.enabled %}
-<script>(function(){var v='{{ r_version }}';if(document.querySelector('link[href*="leaflet@'+v+'"]'))return;var l=document.createElement('link');l.rel='stylesheet';l.href='https://cdn.jsdelivr.net/npm/leaflet@'+v+'/dist/leaflet.css';document.head.appendChild(l);}());</script>
+<script>(function(){var u='{{ r_leaflet_css_url }}';if(document.querySelector('link[href="'+u+'"]'))return;var l=document.createElement('link');l.rel='stylesheet';l.href=u;document.head.appendChild(l);}());</script>
 <style>
 #{{ map_id }}-wrap { width: 100%; }
 #{{ map_id }} { width: 100%; height: {{ r_height }}; z-index: 1; }
@@ -94,9 +105,8 @@
 (function () {
     'use strict';
 
-    var MAP_ID    = '{{ map_id }}';
-    var L_VERSION = '{{ r_version }}';
-    var L_JS_URL  = 'https://cdn.jsdelivr.net/npm/leaflet@' + L_VERSION + '/dist/leaflet.js';
+    var MAP_ID   = '{{ map_id }}';
+    var L_JS_URL = '{{ r_leaflet_js_url }}';
 
     var mapOptions = {
         center           : [parseFloat('{{ r_lat }}'), parseFloat('{{ r_lng }}')],
@@ -166,10 +176,9 @@
             initLeafletMap();
             return;
         }
-        if (document.querySelector('script[src*="leaflet@' + L_VERSION + '"]')) {
+        if (document.querySelector('script[src="' + L_JS_URL + '"]')) {
             /* Skrypt już w toku — czekaj na event load */
-            var existing = document.querySelector('script[src*="leaflet@' + L_VERSION + '"]');
-            existing.addEventListener('load', initLeafletMap);
+            document.querySelector('script[src="' + L_JS_URL + '"]').addEventListener('load', initLeafletMap);
             return;
         }
         var script = document.createElement('script');

@@ -170,12 +170,20 @@ form:
               class: alert alert-info
               content: 'Opcje wyglądu i integracji'
 
+            leaflet_source:
+              type: select.select
+              label: Źródło biblioteki Leaflet
+              default: cdn
+              options:
+                cdn: CDN (jsDelivr) — wymaga internetu
+                local: Lokalny plik (particles/js/)
+
             leaflet_version:
               type: input.text
-              label: Wersja Leaflet
+              label: Wersja Leaflet (tylko CDN)
               default: '1.9.4'
               placeholder: '1.9.4'
-              description: 'Ładowana z jsDelivr CDN. Zmień tylko jeśli potrzebujesz konkretnej wersji.'
+              description: 'Dotyczy tylko trybu CDN. Lokalnie zawsze używany plik leaflet.min.js z particles/js/.'
 
             aria_label:
               type: input.text
