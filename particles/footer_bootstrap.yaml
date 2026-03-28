@@ -306,6 +306,13 @@ form:
               type: input.colorpicker
               label: Kolor nagłówków kart
 
+            heading_font_size:
+              type: input.text
+              label: Rozmiar czcionki nagłówków
+              description: 'Np.: 1.1rem, 16px, 1.2em. Pozostaw puste = domyślny.'
+              placeholder: '1.1rem'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
             divider_note:
               type: separator.note
               class: alert alert-info

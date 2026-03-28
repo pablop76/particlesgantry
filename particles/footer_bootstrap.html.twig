@@ -11,7 +11,8 @@
 {% set r_color         = particle.text_color|default('') %}
 {% set r_link_color    = particle.link_color|default('') %}
 {% set r_link_hover    = particle.link_hover_color|default('') %}
-{% set r_heading_color = particle.heading_color|default('') %}
+{% set r_heading_color   = particle.heading_color|default('') %}
+{% set r_heading_size    = particle.heading_font_size|default('') %}
 {% set r_show_divider  = particle.show_divider is not defined ? true : particle.show_divider %}
 {% set r_divider_color = particle.divider_color|default('') %}
 {% set r_social_color  = particle.social_color|default('') %}
@@ -77,7 +78,7 @@
 #{{ footer_id }} a:focus { color: {{ r_link_hover|e }}; }
 {% endif %}
 #{{ footer_id }} .ft-card-title {
-    font-size: 1.05rem;
+    font-size: {{ r_heading_size ? r_heading_size|e : '1.05rem' }};
     font-weight: 600;
     margin-bottom: {% if r_show_divider %}0{% else %}1rem{% endif %};
 {% if r_heading_color %}    color: {{ r_heading_color|e }};
@@ -137,7 +138,7 @@
             <div class="{{ col }}">
 
                 {% if particle.card1_title %}
-                <h3 class="ft-card-title">{{ particle.card1_title|e }}</h3>
+                <h2 class="ft-card-title">{{ particle.card1_title|e }}</h2>
                 {% endif %}
 
                 {# Logo #}
@@ -189,7 +190,7 @@
             <div class="{{ col }} ft-menu">
 
                 {% if particle.card2_title %}
-                <h3 class="ft-card-title">{{ particle.card2_title|e }}</h3>
+                <h2 class="ft-card-title">{{ particle.card2_title|e }}</h2>
                 {% endif %}
 
                 {% if menu is defined and menu %}
@@ -264,7 +265,7 @@
             <div class="{{ col }}">
 
                 {% if particle.card3_title %}
-                <h3 class="ft-card-title">{{ particle.card3_title|e }}</h3>
+                <h2 class="ft-card-title">{{ particle.card3_title|e }}</h2>
                 {% endif %}
 
                 <address class="ft-contact" style="font-style:normal">
@@ -332,7 +333,7 @@
             <div class="{{ col }}">
 
                 {% if particle.card4_title %}
-                <h3 class="ft-card-title">{{ particle.card4_title|e }}</h3>
+                <h2 class="ft-card-title">{{ particle.card4_title|e }}</h2>
                 {% endif %}
 
                 <table class="ft-hours-table" aria-label="{{ particle.card4_title|default('Godziny otwarcia')|e }}">
