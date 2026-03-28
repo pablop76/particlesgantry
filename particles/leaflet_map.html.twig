@@ -129,7 +129,10 @@
             lng      : parseFloat('{{ m.lng|replace({",": "."})|e }}'),
             title    : {{ m.title|default('')|json_encode|raw }},
             popup    : {{ m.popup|default('')|json_encode|raw }},
-            openPopup: {{ m.open_popup ? 'true' : 'false' }}
+            openPopup: {{ m.open_popup ? 'true' : 'false' }},
+            iconUrl  : {{ m.icon_image ? url(m.icon_image)|json_encode|raw : 'null' }},
+            iconWidth : {{ m.icon_width|default(25)|e }},
+            iconHeight: {{ m.icon_height|default(41)|e }}
         }{% if not loop.last %},{% endif %}
 
         {% endfor %}
@@ -154,6 +157,16 @@
 
             var markerOpts = {};
             if (m.title) markerOpts.title = m.title;
+            if (m.iconUrl) {
+                var w = m.iconWidth  || 25;
+                var h = m.iconHeight || 41;
+                markerOpts.icon = L.icon({
+                    iconUrl    : m.iconUrl,
+                    iconSize   : [w, h],
+                    iconAnchor : [Math.round(w / 2), h],
+                    popupAnchor: [0, -h]
+                });
+            }
 
             var marker = L.marker([m.lat, m.lng], markerOpts).addTo(map);
 

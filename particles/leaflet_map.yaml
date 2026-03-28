@@ -156,6 +156,30 @@ form:
                   label: Otwórz popup automatycznie
                   default: false
 
+                ._icon_sep:
+                  type: separator.note
+                  class: alert alert-info
+                  content: 'Własna ikona (opcjonalnie)'
+
+                .icon_image:
+                  type: input.imagepicker
+                  label: Obraz ikony
+                  description: 'Pozostaw puste aby użyć domyślnej ikony Leaflet.'
+
+                .icon_width:
+                  type: input.number
+                  label: Szerokość ikony (px)
+                  placeholder: '25'
+                  min: 1
+                  max: 200
+
+                .icon_height:
+                  type: input.number
+                  label: Wysokość ikony (px)
+                  placeholder: '41'
+                  min: 1
+                  max: 200
+
                 .disable:
                   type: input.checkbox
                   label: Wyłącz marker
