@@ -70,6 +70,20 @@ form:
                 .image_alt:
                   type: input.text
                   label: Tekst alternatywny obrazu
+                ._sep_slide_overlay:
+                  type: separator.note
+                  class: alert alert-info
+                  content: 'Nakładka (overlay) — nadpisuje ustawienie globalne'
+                .overlay_color:
+                  type: input.colorpicker
+                  label: Kolor nakładki (per slajd)
+                .overlay_opacity:
+                  type: input.number
+                  label: Nieprzezroczystość nakładki (0–1, per slajd)
+                  min: 0
+                  max: 1
+                  step: 0.05
+                  placeholder: 'np. 0.4 — puste = z ustawień globalnych'
                 ._sep_slide_bg:
                   type: separator.note
                   class: alert alert-info
@@ -138,6 +152,23 @@ form:
             class:
               type: input.text
               label: Dodatkowa klasa CSS karuzeli
+
+            _sep_overlay:
+              type: separator.note
+              class: alert alert-info
+              content: 'Overlay (nakładka na obrazek)'
+
+            overlay_color:
+              type: input.colorpicker
+              label: Kolor nakładki (globalny)
+
+            overlay_opacity:
+              type: input.number
+              label: Nieprzezroczystość nakładki (0–1)
+              min: 0
+              max: 1
+              step: 0.05
+              placeholder: '0.4'
 
             _sep_caption:
               type: separator.note

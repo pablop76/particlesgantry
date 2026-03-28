@@ -23,6 +23,10 @@
 {% set height_mobile  = particle.height_mobile|default('') %}
 {% set extra_class    = particle.class|default('') %}
 
+{# Overlay — ustawienia globalne #}
+{% set overlay_color   = particle.overlay_color|default('') %}
+{% set overlay_opacity = particle.overlay_opacity|default('') %}
+
 {# Caption — ustawienia globalne #}
 {% set caption_pos    = particle.caption_position|default('bottom-center') %}
 {% set caption_align  = particle.caption_text_align|default('center') %}
@@ -98,6 +102,13 @@
     }
 }
 {% endif %}
+
+/* ── Overlay (nakładka) ── */
+#{{ carousel_id }} .carousel-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
 
 /* ── Wrapper pozycjonujący caption ── */
 #{{ carousel_id }} .caption-wrapper {
@@ -289,6 +300,13 @@
                  alt="{{ item.image_alt|default(item.title)|e }}"
                  {% if loop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
                  decoding="async">
+            {% endif %}
+
+            {# Overlay — nakładka kolorowa na obraz #}
+            {% set slide_ov_color   = item.overlay_color is not empty ? item.overlay_color : overlay_color %}
+            {% set slide_ov_opacity = item.overlay_opacity is not empty ? item.overlay_opacity : overlay_opacity %}
+            {% if slide_ov_color %}
+            <div class="carousel-overlay" style="background-color:{{ slide_ov_color|e }}{% if slide_ov_opacity is not empty %};opacity:{{ slide_ov_opacity|e }}{% endif %}"></div>
             {% endif %}
 
             {# Caption — renderuj tylko gdy jest jakakolwiek treść #}
