@@ -67,10 +67,9 @@ form:
               content: 'Opis pod logo'
 
             description:
-              type: textarea
+              type: input.text
               label: Opis
               description: Krótki opis firmy / strony pod logo.
-              rows: 4
 
             social_note:
               type: separator.note
