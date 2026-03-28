@@ -424,6 +424,9 @@
 #{{ offcanvas_id }} .navbar-brand,
 #{{ offcanvas_id }} .oc-close-btn { color: {{ _oc_color|e }}; }
 {% endif %}
+{% if _s_bg %}
+#{{ id }}-particle { background-color: {{ _s_bg|e }}; }
+{% endif %}
 {% if sticky_class == 'sticky-top' or sticky_class == 'scroll-up' %}
 #{{ id }}-particle.navbar-is-sticky {
     position: fixed; top: 0; left: 0; width: 100%; z-index: 1030;
