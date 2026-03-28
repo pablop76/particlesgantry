@@ -81,9 +81,15 @@ form:
 
             tile_url_custom:
               type: input.text
-              label: URL niestandardowych kafelków
-              placeholder: 'https://{s}.tile.example.com/{z}/{x}/{y}.png'
-              description: 'Używany tylko gdy wybrano "Niestandardowa". Format: {s}, {z}, {x}, {y}.'
+              label: URL kafelków (własny lub z kluczem)
+              placeholder: 'https://{s}.tile.example.com/{z}/{x}/{y}.png?apikey={apikey}'
+              description: 'Używany tylko gdy wybrano "Niestandardowa (własny URL)". Użyj {apikey} jako placeholder dla klucza API. Przykłady: Thunderforest: https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey} | Mapbox: https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token={apikey} | Stadia: https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key={apikey} | Jawg: https://{s}.tile.jawg.io/jawg-streets/{z}/{x}/{y}{r}.png?access-token={apikey} | Geoapify: https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey={apikey}'
+
+            api_key:
+              type: input.text
+              label: Klucz API
+              placeholder: 'pk.eyJ1IjoiLi4u'
+              description: 'Klucz API dostawcy kafelków. Zastępuje {apikey} w URL powyżej. Działa też dla wbudowanych providerów gdy ich URL zawiera {apikey}.'
 
             attribution:
               type: input.text

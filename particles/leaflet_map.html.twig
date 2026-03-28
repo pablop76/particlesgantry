@@ -63,11 +63,14 @@
     'opentopomap': 17
 } %}
 
-{% set r_tile_key     = particle.tile_layer|default('osm') %}
-{% set r_tile_url     = r_tile_key == 'custom'
+{% set r_tile_key      = particle.tile_layer|default('osm') %}
+{% set r_tile_url      = r_tile_key == 'custom'
     ? particle.tile_url_custom|default('')
     : tile_urls[r_tile_key]|default(tile_urls.osm) %}
-{% set r_attribution  = particle.attribution ?: (tile_attrs[r_tile_key]|default(tile_attrs.osm)) %}
+{% if particle.api_key %}
+    {% set r_tile_url  = r_tile_url|replace({'{apikey}': particle.api_key}) %}
+{% endif %}
+{% set r_attribution   = particle.attribution ?: (tile_attrs[r_tile_key]|default(tile_attrs.osm)) %}
 {% set r_tile_max_zoom = tile_max_zooms[r_tile_key]|default(19) %}
 
 {# Flagi opcji mapy #}
