@@ -32,7 +32,6 @@
 {% set _oc_bg        = gantry.config.get('styles.offcanvas.background')|default('') %}
 {% set _oc_color     = gantry.config.get('styles.offcanvas.text-color')|default('') %}
 {% set _oc_width     = gantry.config.get('styles.offcanvas.width')|default('') %}
-{% set r_bg          = particle.nav_bg          ?: _s_bg %}
 {% set r_color       = particle.nav_color       ?: _s_color %}
 {% set r_hover_color = particle.nav_hover_color ?: _s_color %}
 {% set r_scroll_bg   = particle.scroll_bg|default('') %}
@@ -425,22 +424,15 @@
 #{{ offcanvas_id }} .navbar-brand,
 #{{ offcanvas_id }} .oc-close-btn { color: {{ _oc_color|e }}; }
 {% endif %}
-{% if r_bg %}
-#{{ id }}-particle { background-color: {{ r_bg|e }}; }
-{% endif %}
 {% if sticky_class == 'sticky-top' or sticky_class == 'scroll-up' %}
 #{{ id }}-particle.navbar-is-sticky {
     position: fixed; top: 0; left: 0; width: 100%; z-index: 1030;
-{% if r_bg %}    background-color: {{ r_bg|e }};{% endif %}
+    background-color: {{ _s_bg ?: '#ffffff' }};
 {% if nav_shadow %}    box-shadow: 0 2px 6px rgba(0,0,0,.12);{% endif %}
 }
 {% if sticky_class == 'scroll-up' %}
-#{{ id }}-particle { will-change: transform; }
-#{{ id }}-particle .container-fluid { width: 100%; }
-#{{ id }}-particle.navbar-is-sticky { transition: transform 0.3s ease; }
+#{{ id }}-particle.navbar-is-sticky { transition: transform 0.3s ease{% if r_scroll_bg %}, background-color 0.3s ease{% endif %}; }
 #{{ id }}-particle.navbar-is-sticky.navbar-hidden { transform: translateY(-100%); }
-#{{ id }}-particle.navbar-no-transition,
-#{{ id }}-particle.navbar-no-transition * { transition: none !important; }
 {% endif %}
 {% endif %}
 {% if r_scroll_bg %}
@@ -529,40 +521,23 @@
     function recalc() { ph.style.height = nav.offsetHeight + 'px'; }
     function update() {
         if (!isDesktop()) { reset(); return; }
-        var y     = window.pageYOffset;
+        var y = window.pageYOffset;
         var delta = y - lastY;
         if (Math.abs(delta) < 5) return;
-        lastY = y;
         if (y > 80) {
-            var hiding = delta > 0;
-            /* navbar-scrolled i navbar-hidden ustawiane razem —
-               background-color i transform startują w tym samym event loop  */
-            nav.classList.toggle('navbar-scrolled', true);
-            nav.classList.toggle('navbar-hidden', hiding);
+            nav.classList.toggle('navbar-hidden', delta > 0);
         } else {
-            /* y <= 80: usuń oba naraz (tło i pozycja wracają razem)          */
-            nav.classList.remove('navbar-hidden', 'navbar-scrolled');
+            nav.classList.remove('navbar-hidden');
         }
+        lastY = y;
+        nav.classList.toggle('navbar-scrolled', y > 80);
     }
     function initScrollUp() {
-        if (!isDesktop()) return;
-        /* Wyłącz transition, ustaw stan, poczekaj DWA rAF (= przeglądarka
-           musi wyrenderować 1 klatkę) zanim włączysz transition z powrotem  */
-        nav.classList.add('navbar-no-transition');
-        nav.classList.add('navbar-is-sticky');
-        nav.classList.toggle('navbar-scrolled', window.pageYOffset > 80);
-        ph.style.display = 'block';
-        recalc();
-        requestAnimationFrame(function() {
-            requestAnimationFrame(function() {
-                nav.classList.remove('navbar-no-transition');
-            });
-        });
-    }
-    /* ResizeObserver śledzi rzeczywistą wysokość nav w czasie rzeczywistym —
-       aktualizuje placeholder frame-by-frame podczas CSS transition logo     */
-    if (window.ResizeObserver) {
-        new ResizeObserver(recalc).observe(nav);
+        if (isDesktop()) {
+            nav.classList.add('navbar-is-sticky');
+            ph.style.display = 'block';
+            recalc();
+        }
     }
     window.addEventListener('resize', function() { isDesktop() ? initScrollUp() : reset(); }, { passive: true });
     window.addEventListener('load',   function() { initScrollUp(); }, { passive: true });
