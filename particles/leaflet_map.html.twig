@@ -1,0 +1,192 @@
+{% extends '@nucleus/partials/particle.html.twig' %}
+
+{# ============================================================
+   Zmienne globalne — dostępne we WSZYSTKICH blokach
+   ============================================================ #}
+
+{% set map_id       = 'leaflet-map-' ~ id %}
+{% set r_version    = particle.leaflet_version|default('1.9.4')|e %}
+{% set r_lat        = particle.lat|default('52.2297')|replace({',': '.'})|e %}
+{% set r_lng        = particle.lng|default('21.0122')|replace({',': '.'})|e %}
+{% set r_zoom       = particle.zoom|default(13)|e %}
+{% set r_height     = particle.height|default('450px')|e %}
+{% set r_aria_label = particle.aria_label|default('Mapa interaktywna')|e %}
+
+{# Warstwy kafelków — URL i domyślna atrybucja #}
+{% set tile_urls = {
+    'osm':         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'carto_light': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    'carto_dark':  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+} %}
+{% set tile_attrs = {
+    'osm':         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    'carto_light': '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    'carto_dark':  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+} %}
+
+{% set r_tile_key = particle.tile_layer|default('osm') %}
+{% set r_tile_url = r_tile_key == 'custom'
+    ? particle.tile_url_custom|default('')
+    : tile_urls[r_tile_key]|default(tile_urls.osm) %}
+{% set r_attribution = particle.attribution ?: (tile_attrs[r_tile_key]|default(tile_attrs.osm)) %}
+
+{# Flagi opcji mapy #}
+{% set r_scroll_wheel       = particle.scroll_wheel ? 'true' : 'false' %}
+{% set r_dragging           = particle.dragging == '0' ? 'false' : 'true' %}
+{% set r_zoom_control       = particle.zoom_control == '0' ? 'false' : 'true' %}
+{% set r_attribution_ctrl   = particle.attribution_control == '0' ? 'false' : 'true' %}
+{% set r_fit_bounds         = particle.fit_bounds ? 'true' : 'false' %}
+
+{# Aktywne markery (muszą mieć lat i lng) #}
+{% set active_markers = [] %}
+{% for m in particle.markers|default([]) %}
+    {% if not m.disable and m.lat and m.lng %}
+        {% set active_markers = active_markers|merge([m]) %}
+    {% endif %}
+{% endfor %}
+
+{# Dodatkowe atrybuty HTML kontenera #}
+{% set attr_extra = '' %}
+{% for k, v in particle.extra|default({}) %}
+    {% set attr_extra = attr_extra ~ ' ' ~ k|e ~ '="' ~ v|e ~ '"' %}
+{% endfor %}
+
+
+{# ============================================================
+   CSS — Leaflet + własne style particle
+   ============================================================ #}
+{% block stylesheets %}
+{% if particle.enabled %}
+<script>(function(){var v='{{ r_version }}';if(document.querySelector('link[href*="leaflet@'+v+'"]'))return;var l=document.createElement('link');l.rel='stylesheet';l.href='https://cdn.jsdelivr.net/npm/leaflet@'+v+'/dist/leaflet.css';document.head.appendChild(l);}());</script>
+<style>
+#{{ map_id }}-wrap { width: 100%; }
+#{{ map_id }} { width: 100%; height: {{ r_height }}; z-index: 1; }
+</style>
+{% endif %}
+{% endblock %}
+
+
+{# ============================================================
+   HTML — kontener mapy
+   ============================================================ #}
+{% block particle %}
+{% if particle.enabled %}
+<div id="{{ id }}-particle"
+     class="g-particle leaflet-map-particle{% if particle.class %} {{ particle.class|e }}{% endif %}"
+     {{ attr_extra|raw }}>
+    <div id="{{ map_id }}-wrap">
+        <div id="{{ map_id }}"
+             aria-label="{{ r_aria_label }}"
+             role="application">
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+
+{# ============================================================
+   JS — dynamiczne ładowanie Leaflet i inicjalizacja mapy
+   ============================================================ #}
+{% block javascript_footer %}
+{% if particle.enabled %}
+<script>
+(function () {
+    'use strict';
+
+    var MAP_ID    = '{{ map_id }}';
+    var L_VERSION = '{{ r_version }}';
+    var L_JS_URL  = 'https://cdn.jsdelivr.net/npm/leaflet@' + L_VERSION + '/dist/leaflet.js';
+
+    var mapOptions = {
+        center           : [parseFloat('{{ r_lat }}'), parseFloat('{{ r_lng }}')],
+        zoom             : {{ r_zoom }},
+        scrollWheelZoom  : {{ r_scroll_wheel }},
+        dragging         : {{ r_dragging }},
+        zoomControl      : {{ r_zoom_control }},
+        attributionControl: {{ r_attribution_ctrl }}
+    };
+
+    var tileOptions = {
+        attribution: {{ r_attribution|json_encode|raw }},
+        maxZoom    : 19
+    };
+
+    var markersData = [
+        {% for m in active_markers %}
+        {
+            lat      : parseFloat('{{ m.lat|replace({",": "."})|e }}'),
+            lng      : parseFloat('{{ m.lng|replace({",": "."})|e }}'),
+            title    : {{ m.title|default('')|json_encode|raw }},
+            popup    : {{ m.popup|default('')|json_encode|raw }},
+            openPopup: {{ m.open_popup ? 'true' : 'false' }}
+        }{% if not loop.last %},{% endif %}
+
+        {% endfor %}
+    ];
+
+    var fitBounds = {{ r_fit_bounds }};
+
+    /* ---- Inicjalizacja mapy ---- */
+    function initLeafletMap() {
+        var L  = window.L;
+        var el = document.getElementById(MAP_ID);
+        if (!L || !el) return;
+
+        var map = L.map(el, mapOptions);
+
+        L.tileLayer({{ r_tile_url|json_encode|raw }}, tileOptions).addTo(map);
+
+        var bounds = [];
+
+        markersData.forEach(function (m) {
+            if (isNaN(m.lat) || isNaN(m.lng)) return;
+
+            var markerOpts = {};
+            if (m.title) markerOpts.title = m.title;
+
+            var marker = L.marker([m.lat, m.lng], markerOpts).addTo(map);
+
+            if (m.popup) {
+                marker.bindPopup(m.popup);
+                if (m.openPopup) marker.openPopup();
+            }
+
+            bounds.push([m.lat, m.lng]);
+        });
+
+        if (fitBounds && bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [40, 40] });
+        }
+    }
+
+    /* ---- Ładowanie Leaflet JS (jeśli nie jest jeszcze załadowany) ---- */
+    function loadLeafletAndInit() {
+        if (window.L) {
+            initLeafletMap();
+            return;
+        }
+        if (document.querySelector('script[src*="leaflet@' + L_VERSION + '"]')) {
+            /* Skrypt już w toku — czekaj na event load */
+            var existing = document.querySelector('script[src*="leaflet@' + L_VERSION + '"]');
+            existing.addEventListener('load', initLeafletMap);
+            return;
+        }
+        var script = document.createElement('script');
+        script.src = L_JS_URL;
+        script.onload  = initLeafletMap;
+        script.onerror = function () {
+            console.warn('[LeafletMap #{{ id }}] Nie udało się załadować Leaflet.js z CDN.');
+        };
+        document.head.appendChild(script);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadLeafletAndInit);
+    } else {
+        loadLeafletAndInit();
+    }
+}());
+</script>
+{% endif %}
+{% endblock %}

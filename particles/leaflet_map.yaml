@@ -1,0 +1,201 @@
+name: Leaflet Map
+description: Interaktywna mapa Leaflet z markerami, wyborem warstwy kafelków i konfiguracją widoku.
+type: particle
+icon: fa-map-marker
+
+configuration:
+  caching:
+    type: static
+
+form:
+  overrideable: false
+  fields:
+
+    enabled:
+      type: input.checkbox
+      label: Enabled
+      description: Globalnie włącz/wyłącz particle mapy.
+      default: true
+
+    _tabs:
+      type: container.tabs
+      fields:
+
+        _tab_map:
+          label: Mapa
+          fields:
+
+            _info_map:
+              type: separator.note
+              class: alert alert-info
+              content: 'Centrum mapy i opcje wyświetlania'
+
+            lat:
+              type: input.text
+              label: Szerokość geograficzna
+              placeholder: '52.2297'
+              description: 'Współrzędna centrum mapy, np. 52.2297. Używaj kropki jako separatora dziesiętnego.'
+
+            lng:
+              type: input.text
+              label: Długość geograficzna
+              placeholder: '21.0122'
+              description: 'Współrzędna centrum mapy, np. 21.0122. Używaj kropki jako separatora dziesiętnego.'
+
+            zoom:
+              type: input.number
+              label: Poziom powiększenia
+              default: 13
+              min: 1
+              max: 19
+              step: 1
+              description: 'Zoom od 1 (kontynent) do 19 (ulica).'
+
+            height:
+              type: input.text
+              label: Wysokość mapy
+              default: '450px'
+              placeholder: '450px'
+              description: 'Dowolna jednostka CSS, np. 450px lub 60vh.'
+
+            tile_layer:
+              type: select.select
+              label: Warstwa kafelków
+              default: osm
+              description: 'Wybierz dostawcę kafelków mapy.'
+              options:
+                osm: OpenStreetMap (domyślna)
+                carto_light: CartoDB Positron (jasna)
+                carto_dark: CartoDB Dark Matter (ciemna)
+                custom: Niestandardowa
+
+            tile_url_custom:
+              type: input.text
+              label: URL niestandardowych kafelków
+              placeholder: 'https://{s}.tile.example.com/{z}/{x}/{y}.png'
+              description: 'Używany tylko gdy wybrano "Niestandardowa". Format: {s}, {z}, {x}, {y}.'
+
+            attribution:
+              type: input.text
+              label: Atrybucja (opcjonalna)
+              placeholder: ''
+              description: 'Nadpisuje domyślną atrybucję dostawcy. HTML dozwolony.'
+
+            _info_controls:
+              type: separator.note
+              class: alert alert-info
+              content: 'Sterowanie mapą'
+
+            scroll_wheel:
+              type: input.checkbox
+              label: Zoom kółkiem myszy
+              default: false
+              description: 'Wyłącz dla map osadzonych w długich stronach (zapobiega przypadkowemu zoomowaniu przy scrollu).'
+
+            dragging:
+              type: input.checkbox
+              label: Przeciąganie mapy
+              default: true
+
+            zoom_control:
+              type: input.checkbox
+              label: Przyciski +/– zoomu
+              default: true
+
+            attribution_control:
+              type: input.checkbox
+              label: Pasek atrybucji
+              default: true
+
+            fit_bounds:
+              type: input.checkbox
+              label: Dopasuj widok do markerów
+              default: false
+              description: 'Automatycznie dopasowuje zoom i centrum do wszystkich aktywnych markerów. Wymaga co najmniej jednego markera.'
+
+        _tab_markers:
+          label: Markery
+          fields:
+
+            _info_markers:
+              type: separator.note
+              class: alert alert-info
+              content: 'Markery wyświetlane na mapie'
+
+            markers:
+              type: collection.list
+              array: true
+              label: Markery
+              value: title
+              ajax: true
+              overrideable: false
+              fields:
+                .title:
+                  type: input.text
+                  label: Tytuł markera
+                  placeholder: 'Np. Nasza siedziba'
+                  description: 'Widoczny w dymku tooltip po najechaniu.'
+
+                .lat:
+                  type: input.text
+                  label: Szerokość geograficzna
+                  placeholder: '52.2297'
+
+                .lng:
+                  type: input.text
+                  label: Długość geograficzna
+                  placeholder: '21.0122'
+
+                .popup:
+                  type: textarea.textarea
+                  label: Treść popup
+                  placeholder: 'Tekst lub HTML wyświetlany po kliknięciu markera.'
+
+                .open_popup:
+                  type: input.checkbox
+                  label: Otwórz popup automatycznie
+                  default: false
+
+                .disable:
+                  type: input.checkbox
+                  label: Wyłącz marker
+                  default: false
+
+        _tab_appearance:
+          label: Wygląd
+          fields:
+
+            _info_app:
+              type: separator.note
+              class: alert alert-info
+              content: 'Opcje wyglądu i integracji'
+
+            leaflet_version:
+              type: input.text
+              label: Wersja Leaflet
+              default: '1.9.4'
+              placeholder: '1.9.4'
+              description: 'Ładowana z jsDelivr CDN. Zmień tylko jeśli potrzebujesz konkretnej wersji.'
+
+            aria_label:
+              type: input.text
+              label: Opis mapy (aria-label)
+              default: 'Mapa interaktywna'
+              description: 'Opis dla czytników ekranu.'
+
+            class:
+              type: input.text
+              label: Dodatkowe klasy CSS
+              placeholder: 'moja-klasa ...'
+
+            extra:
+              type: collection.keyvalue
+              label: Atrybuty HTML kontenera
+              key_placeholder: 'Klucz (data-*, style...)'
+              value_placeholder: Wartość
+              exclude: ['id', 'class']
+
+    copyright:
+      type: separator.note
+      class: alert alert-success
+      content: 'Leaflet Map Particle v1.0 — <a href="https://web-service.com.pl/" target="_blank">pablop76</a>'
