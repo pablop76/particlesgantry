@@ -211,7 +211,6 @@
                     <li{% if active %} class="active"{% endif %}>
                         {% if item.url %}
                         <a href="{{ item.url ~ item.hash|default('') }}"
-                           class="{{ active ? 'active' : '' }}"
                            {% if item.target and item.target != '_self' %}target="{{ item.target|e }}"{% endif %}
                            {% if active %}aria-current="page"{% endif %}>
                             {% if item.icon %}<span class="{{ item.icon|e }}" aria-hidden="true"></span> {% endif %}
@@ -235,7 +234,6 @@
                             <li{% if child_active %} class="active"{% endif %}>
                                 {% if child.url %}
                                 <a href="{{ child.url ~ child.hash|default('') }}"
-                                   class="{{ child_active ? 'active' : '' }}"
                                    {% if child.target and child.target != '_self' %}target="{{ child.target|e }}"{% endif %}
                                    {% if child_active %}aria-current="page"{% endif %}>
                                     {% if child.icon %}<span class="{{ child.icon|e }}" aria-hidden="true"></span> {% endif %}
