@@ -281,6 +281,17 @@ form:
           label: Styl
           fields:
 
+            html_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Treść'
+
+            allow_html:
+              type: input.checkbox
+              label: Zezwalaj na HTML w polach tekstowych
+              description: Gdy włączone, nagłówki kart, etykiety i pola kontaktu/godzin renderują HTML. Opis pod logo zawsze obsługuje HTML.
+              default: false
+
             colors_note:
               type: separator.note
               class: alert alert-info

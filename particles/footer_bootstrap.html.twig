@@ -18,6 +18,7 @@
 {% set r_social_color  = particle.social_color|default('') %}
 {% set r_social_size   = particle.social_icon_size|default('') %}
 {% set r_padding       = particle.padding|default('') %}
+{% set _h = particle.allow_html|default(false) %}
 
 {# Kolory stopki z konfiguracji szablonu (fallback gdy nie ustawiono w particle) #}
 {% set _s_color = gantry.config.get('styles.footer.text-color')|default('') %}
@@ -139,7 +140,7 @@
             <div class="{{ col }}">
 
                 {% if particle.card1_title %}
-                <h2 class="ft-card-title">{{ particle.card1_title|e }}</h2>
+                <h2 class="ft-card-title">{{ _h ? particle.card1_title|raw : particle.card1_title|e }}</h2>
                 {% endif %}
 
                 {# Logo #}
@@ -155,7 +156,7 @@
                          decoding="async"
                          {% if particle.logo_height %}style="max-height:{{ particle.logo_height|e }};width:auto"{% endif %}>
                     {% else %}
-                    <span class="fs-4 fw-bold">{{ particle.logo_text|e }}</span>
+                    <span class="fs-4 fw-bold">{{ _h ? particle.logo_text|raw : particle.logo_text|e }}</span>
                     {% endif %}
                 </a>
                 {% endif %}
@@ -191,7 +192,7 @@
             <div class="{{ col }} ft-menu">
 
                 {% if particle.card2_title %}
-                <h2 class="ft-card-title">{{ particle.card2_title|e }}</h2>
+                <h2 class="ft-card-title">{{ _h ? particle.card2_title|raw : particle.card2_title|e }}</h2>
                 {% endif %}
 
                 {% if menu is defined and menu %}
@@ -266,7 +267,7 @@
             <div class="{{ col }}">
 
                 {% if particle.card3_title %}
-                <h2 class="ft-card-title">{{ particle.card3_title|e }}</h2>
+                <h2 class="ft-card-title">{{ _h ? particle.card3_title|raw : particle.card3_title|e }}</h2>
                 {% endif %}
 
                 <address class="ft-contact" style="font-style:normal">
@@ -279,9 +280,9 @@
                         {% endif %}
                         <div>
                             {% if particle.phone_label %}
-                            <small class="d-block opacity-75 lh-1 mb-1">{{ particle.phone_label|e }}</small>
+                            <small class="d-block opacity-75 lh-1 mb-1">{{ _h ? particle.phone_label|raw : particle.phone_label|e }}</small>
                             {% endif %}
-                            <a href="tel:{{ particle.phone|replace({' ': '', '-': '', '(': '', ')': ''})|e }}">{{ particle.phone|e }}</a>
+                            <a href="tel:{{ particle.phone|replace({' ': '', '-': '', '(': '', ')': ''})|e }}">{{ _h ? particle.phone|raw : particle.phone|e }}</a>
                         </div>
                     </div>
                     {% endif %}
@@ -294,9 +295,9 @@
                         {% endif %}
                         <div>
                             {% if particle.email_label %}
-                            <small class="d-block opacity-75 lh-1 mb-1">{{ particle.email_label|e }}</small>
+                            <small class="d-block opacity-75 lh-1 mb-1">{{ _h ? particle.email_label|raw : particle.email_label|e }}</small>
                             {% endif %}
-                            <a href="mailto:{{ particle.email|e }}">{{ particle.email|e }}</a>
+                            <a href="mailto:{{ particle.email|e }}">{{ _h ? particle.email|raw : particle.email|e }}</a>
                         </div>
                     </div>
                     {% endif %}
@@ -309,14 +310,14 @@
                         {% endif %}
                         <div>
                             {% if particle.address_label %}
-                            <small class="d-block opacity-75 lh-1 mb-1">{{ particle.address_label|e }}</small>
+                            <small class="d-block opacity-75 lh-1 mb-1">{{ _h ? particle.address_label|raw : particle.address_label|e }}</small>
                             {% endif %}
                             {% if particle.maps_url %}
                             <a href="{{ particle.maps_url|e }}" target="_blank" rel="noopener noreferrer">
-                                {{ particle.address_street|e }}{% if particle.address_city %}<br>{{ particle.address_city|e }}{% endif %}
+                                {{ _h ? particle.address_street|raw : particle.address_street|e }}{% if particle.address_city %}<br>{{ _h ? particle.address_city|raw : particle.address_city|e }}{% endif %}
                             </a>
                             {% else %}
-                            <span>{{ particle.address_street|e }}{% if particle.address_city %}<br>{{ particle.address_city|e }}{% endif %}</span>
+                            <span>{{ _h ? particle.address_street|raw : particle.address_street|e }}{% if particle.address_city %}<br>{{ _h ? particle.address_city|raw : particle.address_city|e }}{% endif %}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -334,7 +335,7 @@
             <div class="{{ col }}">
 
                 {% if particle.card4_title %}
-                <h2 class="ft-card-title">{{ particle.card4_title|e }}</h2>
+                <h2 class="ft-card-title">{{ _h ? particle.card4_title|raw : particle.card4_title|e }}</h2>
                 {% endif %}
 
                 <table class="ft-hours-table" aria-label="{{ particle.card4_title|default('Godziny otwarcia')|e }}">
@@ -342,8 +343,8 @@
                         {% for row in hours_items %}
                         {% if row.days and row.hours %}
                         <tr{% if row.highlight|default(false) %} class="ft-highlight"{% endif %}>
-                            <td>{{ row.days|e }}</td>
-                            <td>{{ row.hours|e }}</td>
+                            <td>{{ _h ? row.days|raw : row.days|e }}</td>
+                            <td>{{ _h ? row.hours|raw : row.hours|e }}</td>
                         </tr>
                         {% endif %}
                         {% endfor %}
