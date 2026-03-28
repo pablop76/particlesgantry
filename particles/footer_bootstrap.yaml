@@ -1,0 +1,365 @@
+name: Footer Bootstrap
+description: Stopka czterema kolumnami – logo+social, menu pionowe, kontakt, godziny otwarcia.
+type: particle
+icon: fa-columns
+
+configuration:
+  caching:
+    type: static
+
+form:
+  overrideable: false
+  fields:
+
+    enabled:
+      type: input.checkbox
+      label: Enabled
+      description: Globalnie włącz/wyłącz cząstkę stopki.
+      default: true
+
+    _tabs:
+      type: container.tabs
+      fields:
+
+        _tab_card1:
+          label: Logo / O nas
+          fields:
+
+            card1_enabled:
+              type: input.checkbox
+              label: Pokaż kartę
+              default: true
+
+            card1_title:
+              type: input.text
+              label: Nagłówek karty
+              placeholder: 'O nas'
+
+            logo_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Logo'
+
+            logo_url:
+              type: input.text
+              label: URL Logo
+              description: Adres URL po kliknięciu w logo. Pozostaw puste aby prowadzić do strony głównej.
+
+            logo_text:
+              type: input.text
+              label: Tekst Logo (alt)
+              description: Tekst alternatywny obrazka lub tekstowe logo gdy brak obrazka.
+
+            logo_image:
+              type: input.imagepicker
+              label: Obrazek Logo
+
+            logo_height:
+              type: input.text
+              label: Maksymalna wysokość logo
+              description: 'Np.: 60px, 4rem'
+              placeholder: '60px'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+            description_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Opis pod logo'
+
+            description:
+              type: textarea
+              label: Opis
+              description: Krótki opis firmy / strony pod logo.
+              rows: 4
+
+            social_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Ikony Social Media'
+
+            social_items:
+              type: collection.list
+              array: true
+              label: Linki Social Media
+              value: label
+              ajax: true
+              overrideable: false
+              fields:
+                .label:
+                  type: input.text
+                  label: Etykieta (aria)
+                  description: Nazwa dla czytników ekranu, np. Facebook
+                .icon:
+                  type: input.icon
+                  label: Ikona FA
+                  default: 'fa fa-globe'
+                .url:
+                  type: input.text
+                  label: URL
+                  placeholder: 'https://facebook.com/...'
+                .target_blank:
+                  type: input.checkbox
+                  label: Otwórz w nowej karcie
+                  default: true
+
+        _tab_card2:
+          label: Menu
+          fields:
+
+            card2_enabled:
+              type: input.checkbox
+              label: Pokaż kartę
+              default: true
+
+            card2_title:
+              type: input.text
+              label: Nagłówek karty
+              placeholder: 'Menu'
+
+            menu_source_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Źródło menu Joomla'
+
+            menu:
+              type: menu.list
+              label: Menu
+              description: Wybierz menu Joomla do wyświetlenia w stopce.
+              default: ''
+              selectize:
+                allowEmptyOption: true
+              options:
+                '': Brak (ukryj kartę)
+                '-active-': Użyj aktywnego menu
+
+            base:
+              type: menu.item
+              label: Element bazowy
+              description: Element menu od którego rozpoczyna się renderowanie.
+              default: '/'
+              options:
+                '/': Aktywny
+
+            startLevel:
+              type: input.text
+              label: Poziom startowy
+              description: Od którego poziomu wyświetlać menu.
+              default: 1
+
+            maxLevels:
+              type: input.text
+              label: Maks. poziomów
+              description: Maksymalna głębokość menu. 1 = tylko top-level, 2 = z podmenu.
+              default: 2
+
+        _tab_card3:
+          label: Kontakt
+          fields:
+
+            card3_enabled:
+              type: input.checkbox
+              label: Pokaż kartę
+              default: true
+
+            card3_title:
+              type: input.text
+              label: Nagłówek karty
+              placeholder: 'Kontakt'
+
+            phone_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Telefon'
+
+            phone:
+              type: input.text
+              label: Numer telefonu
+              placeholder: '+48 123 456 789'
+
+            phone_icon:
+              type: input.icon
+              label: Ikona telefonu
+              default: 'fa fa-phone'
+
+            phone_label:
+              type: input.text
+              label: Etykieta nad numerem
+              placeholder: 'Telefon'
+
+            email_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'E-mail'
+
+            email:
+              type: input.text
+              label: Adres e-mail
+              placeholder: 'kontakt@example.com'
+
+            email_icon:
+              type: input.icon
+              label: Ikona e-mail
+              default: 'fa fa-envelope'
+
+            email_label:
+              type: input.text
+              label: Etykieta nad adresem e-mail
+              placeholder: 'E-mail'
+
+            address_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Adres'
+
+            address_street:
+              type: input.text
+              label: Ulica i numer
+              placeholder: 'ul. Przykładowa 1'
+
+            address_city:
+              type: input.text
+              label: Kod pocztowy i miasto
+              placeholder: '00-000 Warszawa'
+
+            address_icon:
+              type: input.icon
+              label: Ikona adresu
+              default: 'fa fa-map-marker'
+
+            address_label:
+              type: input.text
+              label: Etykieta nad adresem
+              placeholder: 'Adres'
+
+            maps_url:
+              type: input.text
+              label: Link do Google Maps (opcjonalnie)
+              description: Adres będzie klikalny i otworzy mapę w nowej karcie.
+              placeholder: 'https://maps.google.com/...'
+
+        _tab_card4:
+          label: Godziny otwarcia
+          fields:
+
+            card4_enabled:
+              type: input.checkbox
+              label: Pokaż kartę
+              default: true
+
+            card4_title:
+              type: input.text
+              label: Nagłówek karty
+              placeholder: 'Godziny otwarcia'
+
+            hours_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Pozycje tabeli godzin'
+
+            hours_items:
+              type: collection.list
+              array: true
+              label: Wiersze
+              value: days
+              ajax: true
+              overrideable: false
+              fields:
+                .days:
+                  type: input.text
+                  label: Dni tygodnia
+                  placeholder: 'Poniedziałek – Piątek'
+                .hours:
+                  type: input.text
+                  label: Godziny
+                  placeholder: '9:00 – 17:00'
+                .highlight:
+                  type: input.checkbox
+                  label: Wyróżnij wiersz (pogrubienie)
+                  default: false
+
+        _tab_style:
+          label: Styl
+          fields:
+
+            colors_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Kolory'
+
+            bg_color:
+              type: input.colorpicker
+              label: Kolor tła stopki
+              description: Domyślnie dziedziczy z ustawień szablonu.
+
+            text_color:
+              type: input.colorpicker
+              label: Kolor tekstu
+
+            link_color:
+              type: input.colorpicker
+              label: Kolor linków
+
+            link_hover_color:
+              type: input.colorpicker
+              label: Kolor linków (hover/focus)
+
+            heading_color:
+              type: input.colorpicker
+              label: Kolor nagłówków kart
+
+            divider_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Separator pod nagłówkiem'
+
+            show_divider:
+              type: input.checkbox
+              label: Pokaż linię pod nagłówkiem karty
+              default: true
+
+            divider_color:
+              type: input.colorpicker
+              label: Kolor linii separatora
+              description: Domyślnie kolor tekstu (currentColor).
+
+            social_style_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Ikony Social Media'
+
+            social_color:
+              type: input.colorpicker
+              label: Kolor ikon Social Media
+              description: Domyślnie dziedziczy kolor linków.
+
+            social_icon_size:
+              type: input.text
+              label: Rozmiar ikon
+              placeholder: '1.25rem'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
+            layout_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Układ'
+
+            padding:
+              type: input.text
+              label: Padding sekcji
+              placeholder: '3rem 0'
+              description: 'Padding zewnętrzny całej stopki. Np.: 3rem 0, 40px 0'
+
+            extra_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Dodatkowe'
+
+            class:
+              type: input.selectize
+              label: Klasy CSS
+              description: Dodatkowe klasy CSS dla elementu stopki.
+
+    copyright:
+      type: separator.note
+      class: alert alert-success
+      content: 'Footer Bootstrap — wersja 1.0 | <a href="https://web-service.com.pl/" target="_blank">pablop76</a>'

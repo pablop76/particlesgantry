@@ -1,0 +1,355 @@
+{% extends '@nucleus/partials/particle.html.twig' %}
+
+{# ============================================================
+   Zmienne globalne — dostępne we wszystkich blokach
+   {% try %} NIE jest dozwolone poza blokami przy {% extends %}
+   ============================================================ #}
+{% set footer_id = 'footer-bs-' ~ id %}
+
+{# Styl #}
+{% set r_bg            = particle.bg_color|default('') %}
+{% set r_color         = particle.text_color|default('') %}
+{% set r_link_color    = particle.link_color|default('') %}
+{% set r_link_hover    = particle.link_hover_color|default('') %}
+{% set r_heading_color = particle.heading_color|default('') %}
+{% set r_show_divider  = particle.show_divider is not defined ? true : particle.show_divider %}
+{% set r_divider_color = particle.divider_color|default('') %}
+{% set r_social_color  = particle.social_color|default('') %}
+{% set r_social_size   = particle.social_icon_size|default('') %}
+{% set r_padding       = particle.padding|default('') %}
+
+{# Kolory stopki z konfiguracji szablonu (fallback gdy nie ustawiono w particle) #}
+{% set _s_color = gantry.config.get('styles.footer.text-color')|default('') %}
+{% set _s_bg    = gantry.config.get('styles.footer.background')|default('') %}
+{% set r_color  = r_color ?: _s_color %}
+{% set r_bg     = r_bg    ?: _s_bg %}
+
+{# Widoczność kart — karta jest widoczna jeśli włączona I ma treść #}
+{% set social_items = particle.social_items|default([]) %}
+{% set hours_items  = particle.hours_items|default([]) %}
+
+{% set c1_has = particle.logo_image or particle.logo_text or particle.description or social_items|length > 0 %}
+{% set c2_has = particle.menu|default('') != '' %}
+{% set c3_has = particle.phone or particle.email or particle.address_street %}
+{% set c4_has = hours_items|length > 0 %}
+
+{% set c1_visible = particle.card1_enabled|default(true) and c1_has %}
+{% set c2_visible = particle.card2_enabled|default(true) and c2_has %}
+{% set c3_visible = particle.card3_enabled|default(true) and c3_has %}
+{% set c4_visible = particle.card4_enabled|default(true) and c4_has %}
+
+{% set n = (c1_visible ? 1 : 0) + (c2_visible ? 1 : 0) + (c3_visible ? 1 : 0) + (c4_visible ? 1 : 0) %}
+
+{# Klasy kolumn zależne od liczby widocznych kart #}
+{% if n == 4 %}
+    {% set col = 'col-12 col-sm-6 col-lg-3' %}
+{% elseif n == 3 %}
+    {% set col = 'col-12 col-sm-6 col-lg-4' %}
+{% elseif n == 2 %}
+    {% set col = 'col-12 col-sm-6' %}
+{% else %}
+    {% set col = 'col-12' %}
+{% endif %}
+
+
+{# ============================================================
+   Style inline
+   ============================================================ #}
+{% block stylesheets %}
+{% if particle.enabled and n > 0 %}
+<script>(function(){if(document.head.querySelector('link[href*="bootstrap.min.css"]'))return;var l=document.createElement('link');l.rel='stylesheet';l.href='{{ gantry.siteUrl() }}media/vendor/bootstrap/css/bootstrap.min.css';document.currentScript.parentNode.insertBefore(l,document.currentScript);}());</script>
+<style>
+#{{ footer_id }} {
+{% if r_bg %}    background-color: {{ r_bg|e }};
+{% endif %}
+{% if r_color %}    color: {{ r_color|e }};
+{% endif %}
+{% if r_padding %}    padding: {{ r_padding|e }};
+{% endif %}
+}
+{% if r_link_color %}
+#{{ footer_id }} a { color: {{ r_link_color|e }}; text-decoration: none; }
+{% else %}
+#{{ footer_id }} a { text-decoration: none; }
+{% endif %}
+{% if r_link_hover %}
+#{{ footer_id }} a:hover,
+#{{ footer_id }} a:focus { color: {{ r_link_hover|e }}; }
+{% endif %}
+#{{ footer_id }} .ft-card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: {% if r_show_divider %}0{% else %}1rem{% endif %};
+{% if r_heading_color %}    color: {{ r_heading_color|e }};
+{% endif %}
+}
+{% if r_show_divider %}
+#{{ footer_id }} .ft-card-title {
+    padding-bottom: 0.6rem;
+    border-bottom: 2px solid {{ r_divider_color ? r_divider_color|e : 'currentColor' }};
+    margin-bottom: 1rem;
+}
+{% endif %}
+#{{ footer_id }} .ft-menu ul { list-style: none; padding: 0; margin: 0; }
+#{{ footer_id }} .ft-menu li { margin-bottom: 0.35rem; }
+#{{ footer_id }} .ft-menu .ft-submenu { padding-left: 0.9rem; margin-top: 0.3rem; font-size: 0.9em; opacity: 0.85; }
+#{{ footer_id }} .ft-contact-item { display: flex; align-items: flex-start; gap: 0.65rem; margin-bottom: 0.9rem; }
+#{{ footer_id }} .ft-contact-icon { flex-shrink: 0; margin-top: 0.2em; width: 1.1em; text-align: center; }
+#{{ footer_id }} .ft-hours-table { width: 100%; border-collapse: collapse; }
+#{{ footer_id }} .ft-hours-table td { padding: 0.2rem 0; }
+#{{ footer_id }} .ft-hours-table td:last-child { text-align: right; }
+#{{ footer_id }} .ft-hours-table tr.ft-highlight td { font-weight: 600; }
+{% if r_social_color %}
+#{{ footer_id }} .ft-social a { color: {{ r_social_color|e }}; }
+#{{ footer_id }} .ft-social a:hover { opacity: 0.75; }
+{% endif %}
+{% if r_social_size %}
+#{{ footer_id }} .ft-social a { font-size: {{ r_social_size|e }}; }
+{% endif %}
+</style>
+{% endif %}
+{% endblock %}
+
+
+{# ============================================================
+   Particle HTML
+   ============================================================ #}
+{% block particle %}
+{% if particle.enabled and n > 0 %}
+
+{# Menu Joomla — {% try %} musi być wewnątrz bloku #}
+{% if c2_visible %}
+{% try %}
+    {% set menu = gantry.menu.instance(particle) %}
+{% catch %}
+    {% set menu = null %}
+{% endtry %}
+{% endif %}
+
+<div id="{{ footer_id }}"{% if particle.class %} class="{{ particle.class|e }}"{% endif %}>
+    <div class="container-fluid">
+        <div class="row g-4 g-lg-5">
+
+            {# ================================================
+               KARTA 1 — Logo / O nas / Social Media
+               ================================================ #}
+            {% if c1_visible %}
+            <div class="{{ col }}">
+
+                {% if particle.card1_title %}
+                <h3 class="ft-card-title">{{ particle.card1_title|e }}</h3>
+                {% endif %}
+
+                {# Logo #}
+                {% if particle.logo_image or particle.logo_text %}
+                {% set logo_href = particle.logo_url ? url(particle.logo_url) : gantry.siteUrl() %}
+                <a href="{{ logo_href }}" class="d-inline-block mb-3"
+                   {% if not particle.logo_url %}rel="home"{% endif %}
+                   aria-label="{{ particle.logo_text|default('Strona główna')|e }}">
+                    {% if particle.logo_image %}
+                    <img src="{{ url(particle.logo_image)|e }}"
+                         alt="{{ particle.logo_text|default('Logo') }}"
+                         fetchpriority="high"
+                         decoding="async"
+                         {% if particle.logo_height %}style="max-height:{{ particle.logo_height|e }};width:auto"{% endif %}>
+                    {% else %}
+                    <span class="fs-4 fw-bold">{{ particle.logo_text|e }}</span>
+                    {% endif %}
+                </a>
+                {% endif %}
+
+                {# Opis #}
+                {% if particle.description %}
+                <p class="ft-description mb-3">{{ particle.description|raw }}</p>
+                {% endif %}
+
+                {# Social Media #}
+                {% if social_items|length > 0 %}
+                <div class="ft-social d-flex flex-wrap gap-2 mt-2">
+                    {% for s in social_items %}
+                    {% if s.url and s.icon %}
+                    <a href="{{ s.url|e }}"
+                       {% if s.target_blank|default(true) %}target="_blank" rel="noopener noreferrer"{% endif %}
+                       aria-label="{{ s.label|e }}">
+                        <span class="{{ s.icon|e }}" aria-hidden="true"></span>
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+            </div>
+            {% endif %}
+
+
+            {# ================================================
+               KARTA 2 — Menu pionowe
+               ================================================ #}
+            {% if c2_visible %}
+            <div class="{{ col }} ft-menu">
+
+                {% if particle.card2_title %}
+                <h3 class="ft-card-title">{{ particle.card2_title|e }}</h3>
+                {% endif %}
+
+                {% if menu is defined and menu %}
+                {% set menu_root = menu.root.children %}
+                {% if menu_root|length > 0 %}
+                <ul>
+                    {% for item in menu_root %}
+                    {% if item.type == 'particle' and not item.options.particle.enabled %}{% set _en = 0 %}{% else %}{% set _en = 1 %}{% endif %}
+                    {% if item.visible and item.enabled and _en %}
+                    {% if item.type == 'separator' %}
+                        {# separatory pomijamy #}
+                    {% else %}
+                    <li>
+                        {% if item.url %}
+                        <a href="{{ item.url ~ item.hash|default('') }}"
+                           {% if item.target and item.target != '_self' %}target="{{ item.target|e }}"{% endif %}
+                           {% if menu.isActive(item) %}aria-current="page"{% endif %}>
+                            {% if item.icon %}<span class="{{ item.icon|e }}" aria-hidden="true"></span> {% endif %}
+                            {% if item.subtitle %}
+                            <span>{{ item.title }}<small class="d-block opacity-75 fw-normal lh-1">{{ item.subtitle }}</small></span>
+                            {% else %}
+                            {{- item.title -}}
+                            {% endif %}
+                        </a>
+                        {% else %}
+                        <span class="fw-semibold">{{ item.title }}</span>
+                        {% endif %}
+
+                        {# Podmenu (poziom 2, gdy maxLevels >= 2) #}
+                        {% if item.children|default([])|length > 0 and particle.maxLevels|default(2)|number_format >= 2 %}
+                        <ul class="ft-submenu">
+                            {% for child in item.children %}
+                            {% if child.type == 'particle' and not child.options.particle.enabled %}{% set _cen = 0 %}{% else %}{% set _cen = 1 %}{% endif %}
+                            {% if child.visible and child.enabled and _cen and child.type != 'separator' %}
+                            <li>
+                                {% if child.url %}
+                                <a href="{{ child.url ~ child.hash|default('') }}"
+                                   {% if child.target and child.target != '_self' %}target="{{ child.target|e }}"{% endif %}
+                                   {% if menu.isActive(child) %}aria-current="page"{% endif %}>
+                                    {% if child.icon %}<span class="{{ child.icon|e }}" aria-hidden="true"></span> {% endif %}
+                                    {{- child.title -}}
+                                </a>
+                                {% else %}
+                                <span>{{ child.title }}</span>
+                                {% endif %}
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+
+                    </li>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endif %}
+
+            </div>
+            {% endif %}
+
+
+            {# ================================================
+               KARTA 3 — Kontakt
+               ================================================ #}
+            {% if c3_visible %}
+            <div class="{{ col }}">
+
+                {% if particle.card3_title %}
+                <h3 class="ft-card-title">{{ particle.card3_title|e }}</h3>
+                {% endif %}
+
+                <address class="ft-contact" style="font-style:normal">
+
+                    {# Telefon #}
+                    {% if particle.phone %}
+                    <div class="ft-contact-item">
+                        {% if particle.phone_icon %}
+                        <span class="{{ particle.phone_icon|e }} ft-contact-icon" aria-hidden="true"></span>
+                        {% endif %}
+                        <div>
+                            {% if particle.phone_label %}
+                            <small class="d-block opacity-75 lh-1 mb-1">{{ particle.phone_label|e }}</small>
+                            {% endif %}
+                            <a href="tel:{{ particle.phone|replace({' ': '', '-': '', '(': '', ')': ''})|e }}">{{ particle.phone|e }}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {# E-mail #}
+                    {% if particle.email %}
+                    <div class="ft-contact-item">
+                        {% if particle.email_icon %}
+                        <span class="{{ particle.email_icon|e }} ft-contact-icon" aria-hidden="true"></span>
+                        {% endif %}
+                        <div>
+                            {% if particle.email_label %}
+                            <small class="d-block opacity-75 lh-1 mb-1">{{ particle.email_label|e }}</small>
+                            {% endif %}
+                            <a href="mailto:{{ particle.email|e }}">{{ particle.email|e }}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {# Adres #}
+                    {% if particle.address_street %}
+                    <div class="ft-contact-item">
+                        {% if particle.address_icon %}
+                        <span class="{{ particle.address_icon|e }} ft-contact-icon" aria-hidden="true"></span>
+                        {% endif %}
+                        <div>
+                            {% if particle.address_label %}
+                            <small class="d-block opacity-75 lh-1 mb-1">{{ particle.address_label|e }}</small>
+                            {% endif %}
+                            {% if particle.maps_url %}
+                            <a href="{{ particle.maps_url|e }}" target="_blank" rel="noopener noreferrer">
+                                {{ particle.address_street|e }}{% if particle.address_city %}<br>{{ particle.address_city|e }}{% endif %}
+                            </a>
+                            {% else %}
+                            <span>{{ particle.address_street|e }}{% if particle.address_city %}<br>{{ particle.address_city|e }}{% endif %}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                </address>
+            </div>
+            {% endif %}
+
+
+            {# ================================================
+               KARTA 4 — Godziny otwarcia
+               ================================================ #}
+            {% if c4_visible %}
+            <div class="{{ col }}">
+
+                {% if particle.card4_title %}
+                <h3 class="ft-card-title">{{ particle.card4_title|e }}</h3>
+                {% endif %}
+
+                <table class="ft-hours-table" aria-label="{{ particle.card4_title|default('Godziny otwarcia')|e }}">
+                    <tbody>
+                        {% for row in hours_items %}
+                        {% if row.days and row.hours %}
+                        <tr{% if row.highlight|default(false) %} class="ft-highlight"{% endif %}>
+                            <td>{{ row.days|e }}</td>
+                            <td>{{ row.hours|e }}</td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+            {% endif %}
+
+        </div>{# .row #}
+    </div>{# .container-fluid #}
+</div>{# #footer_id #}
+
+{% endif %}
+{% endblock %}
