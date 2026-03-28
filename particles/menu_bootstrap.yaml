@@ -328,6 +328,11 @@ form:
               description: Pokaż box-shadow pod paskiem nawigacji gdy jest przyklejony.
               default: false
 
+            nav_bg:
+              type: input.colorpicker
+              label: Tło nawigacji
+              description: Nadpisuje kolor tła z Gantry Styles → Navigation. Pozostaw puste aby użyć wartości z szablonu.
+
             scroll_bg:
               type: input.colorpicker
               label: Tło przy skrolu

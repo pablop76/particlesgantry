@@ -32,6 +32,7 @@
 {% set _oc_bg        = gantry.config.get('styles.offcanvas.background')|default('') %}
 {% set _oc_color     = gantry.config.get('styles.offcanvas.text-color')|default('') %}
 {% set _oc_width     = gantry.config.get('styles.offcanvas.width')|default('') %}
+{% set r_bg          = particle.nav_bg          ?: _s_bg %}
 {% set r_color       = particle.nav_color       ?: _s_color %}
 {% set r_hover_color = particle.nav_hover_color ?: _s_color %}
 {% set r_scroll_bg   = particle.scroll_bg|default('') %}
@@ -424,13 +425,13 @@
 #{{ offcanvas_id }} .navbar-brand,
 #{{ offcanvas_id }} .oc-close-btn { color: {{ _oc_color|e }}; }
 {% endif %}
-{% if _s_bg %}
-#{{ id }}-particle { background-color: {{ _s_bg|e }}; }
+{% if r_bg %}
+#{{ id }}-particle { background-color: {{ r_bg|e }}; }
 {% endif %}
 {% if sticky_class == 'sticky-top' or sticky_class == 'scroll-up' %}
 #{{ id }}-particle.navbar-is-sticky {
     position: fixed; top: 0; left: 0; width: 100%; z-index: 1030;
-    background-color: {{ _s_bg ?: '#ffffff' }};
+{% if r_bg %}    background-color: {{ r_bg|e }};{% endif %}
 {% if nav_shadow %}    box-shadow: 0 2px 6px rgba(0,0,0,.12);{% endif %}
 }
 {% if sticky_class == 'scroll-up' %}
