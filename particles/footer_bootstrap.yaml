@@ -314,25 +314,37 @@ form:
               type: input.colorpicker
               label: Kolor linków (hover/focus)
 
+            headings_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Nagłówki kart'
+
             heading_color:
               type: input.colorpicker
-              label: Kolor nagłówków kart
+              label: Kolor nagłówków
 
             heading_font_size:
               type: input.text
-              label: Rozmiar czcionki nagłówków
-              description: 'Np.: 1.1rem, 16px, 1.2em. Pozostaw puste = domyślny.'
-              placeholder: '1.1rem'
+              label: Rozmiar czcionki
+              description: 'Np.: 1.1rem, 16px, 1.2em. Pozostaw puste = dziedziczy ze strony.'
               pattern: '\d+(\.\d+){0,1}(rem|em|px)'
 
-            divider_note:
-              type: separator.note
-              class: alert alert-info
-              content: 'Separator pod nagłówkiem'
+            heading_font_weight:
+              type: select.select
+              label: Waga czcionki
+              default: ''
+              options:
+                '': Domyślna (dziedziczona)
+                '300': Lekka (300)
+                '400': Normalna (400)
+                '500': Średnia (500)
+                '600': Semi-bold (600)
+                '700': Pogrubiona (700)
+                '800': Extra-bold (800)
 
             show_divider:
               type: input.checkbox
-              label: Pokaż linię pod nagłówkiem karty
+              label: Pokaż linię pod nagłówkiem
               default: true
 
             divider_color:
