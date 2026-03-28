@@ -202,11 +202,13 @@
                     {% if item.type == 'separator' %}
                         {# separatory pomijamy #}
                     {% else %}
-                    <li>
+                    {% set active = menu.isActive(item) %}
+                    <li{% if active %} class="active"{% endif %}>
                         {% if item.url %}
                         <a href="{{ item.url ~ item.hash|default('') }}"
+                           class="{{ active ? 'active' : '' }}"
                            {% if item.target and item.target != '_self' %}target="{{ item.target|e }}"{% endif %}
-                           {% if menu.isActive(item) %}aria-current="page"{% endif %}>
+                           {% if active %}aria-current="page"{% endif %}>
                             {% if item.icon %}<span class="{{ item.icon|e }}" aria-hidden="true"></span> {% endif %}
                             {% if item.subtitle %}
                             <span>{{ item.title }}<small class="d-block opacity-75 fw-normal lh-1">{{ item.subtitle }}</small></span>
@@ -224,11 +226,13 @@
                             {% for child in item.children %}
                             {% if child.type == 'particle' and not child.options.particle.enabled %}{% set _cen = 0 %}{% else %}{% set _cen = 1 %}{% endif %}
                             {% if child.visible and child.enabled and _cen and child.type != 'separator' %}
-                            <li>
+                            {% set child_active = menu.isActive(child) %}
+                            <li{% if child_active %} class="active"{% endif %}>
                                 {% if child.url %}
                                 <a href="{{ child.url ~ child.hash|default('') }}"
+                                   class="{{ child_active ? 'active' : '' }}"
                                    {% if child.target and child.target != '_self' %}target="{{ child.target|e }}"{% endif %}
-                                   {% if menu.isActive(child) %}aria-current="page"{% endif %}>
+                                   {% if child_active %}aria-current="page"{% endif %}>
                                     {% if child.icon %}<span class="{{ child.icon|e }}" aria-hidden="true"></span> {% endif %}
                                     {{- child.title -}}
                                 </a>
