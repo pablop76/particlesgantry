@@ -521,8 +521,20 @@
     function recalc() { ph.style.height = nav.offsetHeight + 'px'; }
     function update() {
         if (!isDesktop()) { reset(); return; }
-        var y = window.pageYOffset;
-        var delta = y - lastY;
+        var y      = window.pageYOffset;
+        var delta  = y - lastY;
+
+        /* navbar-scrolled ZAWSZE poza guard delta — żeby stan wrócił przy y<=80
+           nawet gdy ostatni krok scrollu był mniejszy niż 5px               */
+        var wasScrolled = nav.classList.contains('navbar-scrolled');
+        var isScrolled  = y > 80;
+        if (wasScrolled !== isScrolled) {
+            nav.classList.toggle('navbar-scrolled', isScrolled);
+            /* Po zakończeniu CSS transition logo zmienia rozmiar →
+               aktualizuj wysokość placeholder z opóźnieniem 0.35s           */
+            setTimeout(recalc, 350);
+        }
+
         if (Math.abs(delta) < 5) return;
         if (y > 80) {
             nav.classList.toggle('navbar-hidden', delta > 0);
@@ -530,7 +542,6 @@
             nav.classList.remove('navbar-hidden');
         }
         lastY = y;
-        nav.classList.toggle('navbar-scrolled', y > 80);
     }
     function initScrollUp() {
         if (isDesktop()) {
