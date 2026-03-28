@@ -11,6 +11,7 @@
 {% set r_color         = particle.text_color|default('') %}
 {% set r_link_color    = particle.link_color|default('') %}
 {% set r_link_hover    = particle.link_hover_color|default('') %}
+{% set r_link_active   = particle.link_active_color|default('') %}
 {% set r_heading_color  = particle.heading_color|default('') %}
 {% set r_heading_size   = particle.heading_font_size|default('') %}
 {% set r_heading_weight = particle.heading_font_weight|default('') %}
@@ -78,6 +79,9 @@
 {% if r_link_hover %}
 #{{ footer_id }} a:hover,
 #{{ footer_id }} a:focus { color: {{ r_link_hover|e }}; }
+{% endif %}
+{% if r_link_active %}
+#{{ footer_id }} .ft-menu li.active > a { color: {{ r_link_active|e }}; }
 {% endif %}
 #{{ footer_id }} .ft-card-title {
 {% if r_heading_size %}    font-size: {{ r_heading_size|e }};

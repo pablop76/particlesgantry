@@ -314,6 +314,10 @@ form:
               type: input.colorpicker
               label: Kolor linków (hover/focus)
 
+            link_active_color:
+              type: input.colorpicker
+              label: Kolor aktywnego linku menu
+
             headings_note:
               type: separator.note
               class: alert alert-info
