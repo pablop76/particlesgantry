@@ -36,7 +36,8 @@
 {% set r_hover_color = particle.nav_hover_color ?: _s_color %}
 {% set r_scroll_bg   = particle.scroll_bg|default('') %}
 {% set r_dropdown_bg = particle.dropdown_bg     ?: '' %}
-{% set r_oc_bg       = particle.offcanvas_bg    ?: _oc_bg %}
+{% set r_oc_bg        = particle.offcanvas_bg    ?: _oc_bg %}
+{% set r_oc_font_size = particle.offcanvas_font_size|default('') %}
 {# --- Typografia --- #}
 {# input.fonts zapisuje jako: Bad+Script&subset=cyrillic,latin; lub family=Bad+Script&subset=... #}
 {% set _font_raw     = particle.nav_font_family|default('')|replace({';': ''})|trim %}
@@ -414,6 +415,9 @@
 {% if _oc_width %}    --bs-offcanvas-width: {{ _oc_width|e }};
 {% endif %}
 }
+{% endif %}
+{% if r_oc_font_size %}
+#{{ offcanvas_id }} .nav-link { font-size: {{ r_oc_font_size|e }}; }
 {% endif %}
 {% if _oc_color %}
 #{{ offcanvas_id }} .nav-link,

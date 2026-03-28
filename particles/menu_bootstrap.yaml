@@ -218,6 +218,12 @@ form:
                 light: Jasny
                 dark: Ciemny
 
+            offcanvas_font_size:
+              type: input.text
+              label: Rozmiar czcionki linków
+              description: 'Rozmiar czcionki pozycji menu w offcanvas. Np.: 1rem, 16px. Pozostaw puste = domyślny.'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
         _tab_social:
           label: Social Media
           fields:
