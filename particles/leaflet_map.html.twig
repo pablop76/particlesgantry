@@ -23,23 +23,52 @@
 {% set r_height     = particle.height|default('450px')|e %}
 {% set r_aria_label = particle.aria_label|default('Mapa interaktywna')|e %}
 
-{# Warstwy kafelków — URL i domyślna atrybucja #}
+{# Warstwy kafelków — URL, atrybucja, maxZoom #}
+{% set _osm_attr   = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' %}
+{% set _carto_attr = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>' %}
+{% set _esri_attr  = 'Tiles &copy; <a href="https://www.esri.com/">Esri</a>' %}
+
 {% set tile_urls = {
-    'osm':         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    'carto_light': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    'carto_dark':  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    'osm':                  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'osm_hot':              'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    'carto_light':          'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    'carto_light_nolabels': 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+    'carto_dark':           'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    'carto_dark_nolabels':  'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+    'carto_voyager':        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    'esri_street':          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    'esri_topo':            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+    'esri_imagery':         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    'esri_gray':            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    'opentopomap':          'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    'cyclosm':              'https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png'
 } %}
 {% set tile_attrs = {
-    'osm':         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    'carto_light': '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    'carto_dark':  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    'osm':                  _osm_attr,
+    'osm_hot':              _osm_attr ~ ', <a href="https://www.hotosm.org/">Humanitarian OpenStreetMap Team</a>',
+    'carto_light':          _carto_attr,
+    'carto_light_nolabels': _carto_attr,
+    'carto_dark':           _carto_attr,
+    'carto_dark_nolabels':  _carto_attr,
+    'carto_voyager':        _carto_attr,
+    'esri_street':          _esri_attr ~ ' &mdash; Sources: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China, TomTom',
+    'esri_topo':            _esri_attr ~ ' &mdash; Sources: Esri, DeLorme, NAVTEQ, OpenStreetMap contributors',
+    'esri_imagery':         _esri_attr ~ ' &mdash; Sources: Esri, Earthstar Geographics',
+    'esri_gray':            _esri_attr ~ ' &mdash; Sources: Esri, DeLorme, HERE',
+    'opentopomap':          'Map data: ' ~ _osm_attr ~ ', <a href="https://viewfinderpanoramas.org">SRTM</a> | Style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+    'cyclosm':              '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases">CyclOSM</a>: ' ~ _osm_attr
+} %}
+{% set tile_max_zooms = {
+    'esri_gray':   16,
+    'opentopomap': 17
 } %}
 
-{% set r_tile_key = particle.tile_layer|default('osm') %}
-{% set r_tile_url = r_tile_key == 'custom'
+{% set r_tile_key     = particle.tile_layer|default('osm') %}
+{% set r_tile_url     = r_tile_key == 'custom'
     ? particle.tile_url_custom|default('')
     : tile_urls[r_tile_key]|default(tile_urls.osm) %}
-{% set r_attribution = particle.attribution ?: (tile_attrs[r_tile_key]|default(tile_attrs.osm)) %}
+{% set r_attribution  = particle.attribution ?: (tile_attrs[r_tile_key]|default(tile_attrs.osm)) %}
+{% set r_tile_max_zoom = tile_max_zooms[r_tile_key]|default(19) %}
 
 {# Flagi opcji mapy #}
 {% set r_scroll_wheel       = particle.scroll_wheel ? 'true' : 'false' %}
@@ -119,7 +148,7 @@
 
     var tileOptions = {
         attribution: {{ r_attribution|json_encode|raw }},
-        maxZoom    : 19
+        maxZoom    : {{ r_tile_max_zoom }}
     };
 
     var markersData = [

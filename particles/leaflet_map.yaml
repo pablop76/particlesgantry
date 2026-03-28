@@ -62,12 +62,22 @@ form:
               type: select.select
               label: Warstwa kafelków
               default: osm
-              description: 'Wybierz dostawcę kafelków mapy.'
+              description: 'Wszystkie opcje poza "Niestandardowa" są darmowe i nie wymagają klucza API.'
               options:
-                osm: OpenStreetMap (domyślna)
-                carto_light: CartoDB Positron (jasna)
-                carto_dark: CartoDB Dark Matter (ciemna)
-                custom: Niestandardowa
+                osm: 'OSM — Standard'
+                osm_hot: 'OSM — Humanitarian (HOT, kolorowa)'
+                carto_light: 'CartoDB — Positron (jasna)'
+                carto_light_nolabels: 'CartoDB — Positron bez etykiet'
+                carto_dark: 'CartoDB — Dark Matter (ciemna)'
+                carto_dark_nolabels: 'CartoDB — Dark Matter bez etykiet'
+                carto_voyager: 'CartoDB — Voyager (kolorowa)'
+                esri_street: 'Esri — mapa ulic'
+                esri_topo: 'Esri — topograficzna'
+                esri_imagery: 'Esri — satelitarna'
+                esri_gray: 'Esri — szara (max zoom 16)'
+                opentopomap: 'OpenTopoMap — topograficzna'
+                cyclosm: 'CyclOSM — rowerowa'
+                custom: 'Niestandardowa (własny URL)'
 
             tile_url_custom:
               type: input.text
