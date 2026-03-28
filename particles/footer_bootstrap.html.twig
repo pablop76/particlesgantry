@@ -162,7 +162,7 @@
 
                 {# Opis #}
                 {% if particle.description %}
-                <p class="ft-description mb-3">{{ particle.description|raw }}</p>
+                <div class="ft-description mb-3">{{ particle.description|raw }}</div>{# |raw — pole textarea, HTML dozwolony #}
                 {% endif %}
 
                 {# Social Media #}
