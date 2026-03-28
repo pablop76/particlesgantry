@@ -356,6 +356,16 @@ form:
               label: Kolor linii separatora
               description: Domyślnie kolor tekstu (currentColor).
 
+            contact_icons_note:
+              type: separator.note
+              class: alert alert-info
+              content: 'Ikony kontaktu'
+
+            contact_icon_color:
+              type: input.colorpicker
+              label: Kolor ikon kontaktu
+              description: Kolor ikon telefonu, e-mail i adresu. Domyślnie dziedziczy kolor tekstu.
+
             social_style_note:
               type: separator.note
               class: alert alert-info
