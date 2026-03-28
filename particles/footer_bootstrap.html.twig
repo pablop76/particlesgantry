@@ -78,7 +78,8 @@
 #{{ footer_id }} a:focus { color: {{ r_link_hover|e }}; }
 {% endif %}
 #{{ footer_id }} .ft-card-title {
-    font-size: {{ r_heading_size ? r_heading_size|e : '1.05rem' }};
+{% if r_heading_size %}    font-size: {{ r_heading_size|e }};
+{% endif %}
     font-weight: 600;
     margin-bottom: {% if r_show_divider %}0{% else %}1rem{% endif %};
 {% if r_heading_color %}    color: {{ r_heading_color|e }};
