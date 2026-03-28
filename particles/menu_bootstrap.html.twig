@@ -431,9 +431,9 @@
 {% if nav_shadow %}    box-shadow: 0 2px 6px rgba(0,0,0,.12);{% endif %}
 }
 {% if sticky_class == 'scroll-up' %}
-#{{ id }}-particle.navbar-is-sticky { transition: transform 0.3s ease{% if r_scroll_bg %}, background-color 0.3s ease{% endif %}; }
-#{{ id }}-particle.navbar-is-sticky.navbar-hidden { transform: translateY(-100%); transition: transform 0.3s ease; }
-#{{ id }}-particle.navbar-no-transition { transition: none !important; }
+#{{ id }}-particle.navbar-is-sticky { transition: transform 0.3s ease; }
+#{{ id }}-particle.navbar-is-sticky.navbar-hidden { transform: translateY(-100%); }
+#{{ id }}-particle.navbar-no-transition,
 #{{ id }}-particle.navbar-no-transition * { transition: none !important; }
 {% endif %}
 {% endif %}
@@ -540,15 +540,17 @@
     }
     function initScrollUp() {
         if (!isDesktop()) return;
-        /* Wyłącz transition na 1 frame żeby position:fixed nie animował się
-           przy inicjalizacji (brak skoku przy wejściu na stronę)             */
+        /* Wyłącz transition, ustaw stan, poczekaj DWA rAF (= przeglądarka
+           musi wyrenderować 1 klatkę) zanim włączysz transition z powrotem  */
         nav.classList.add('navbar-no-transition');
         nav.classList.add('navbar-is-sticky');
         nav.classList.toggle('navbar-scrolled', window.pageYOffset > 80);
         ph.style.display = 'block';
         recalc();
         requestAnimationFrame(function() {
-            nav.classList.remove('navbar-no-transition');
+            requestAnimationFrame(function() {
+                nav.classList.remove('navbar-no-transition');
+            });
         });
     }
     /* ResizeObserver śledzi rzeczywistą wysokość nav w czasie rzeczywistym —
