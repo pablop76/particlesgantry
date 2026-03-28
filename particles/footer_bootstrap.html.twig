@@ -18,6 +18,7 @@
 {% set r_show_divider  = particle.show_divider is not defined ? true : particle.show_divider %}
 {% set r_divider_color = particle.divider_color|default('') %}
 {% set r_contact_icon_color = particle.contact_icon_color|default('') %}
+{% set r_contact_icon_size  = particle.contact_icon_size|default('') %}
 {% set r_social_color  = particle.social_color|default('') %}
 {% set r_social_size   = particle.social_icon_size|default('') %}
 {% set r_padding       = particle.padding|default('') %}
@@ -109,8 +110,13 @@
 #{{ footer_id }} .ft-hours-table td { padding: 0.2rem 0; }
 #{{ footer_id }} .ft-hours-table td:last-child { text-align: right; }
 #{{ footer_id }} .ft-hours-table tr.ft-highlight td { font-weight: 600; }
-{% if r_contact_icon_color %}
-#{{ footer_id }} .ft-contact-icon { color: {{ r_contact_icon_color|e }}; }
+{% if r_contact_icon_color or r_contact_icon_size %}
+#{{ footer_id }} .ft-contact-icon {
+{% if r_contact_icon_color %}    color: {{ r_contact_icon_color|e }};
+{% endif %}
+{% if r_contact_icon_size %}    font-size: {{ r_contact_icon_size|e }};
+{% endif %}
+}
 {% endif %}
 {% if r_social_color %}
 #{{ footer_id }} .ft-social a { color: {{ r_social_color|e }}; }

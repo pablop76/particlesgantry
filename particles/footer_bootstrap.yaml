@@ -366,6 +366,12 @@ form:
               label: Kolor ikon kontaktu
               description: Kolor ikon telefonu, e-mail i adresu. Domyślnie dziedziczy kolor tekstu.
 
+            contact_icon_size:
+              type: input.text
+              label: Rozmiar ikon kontaktu
+              description: 'Np.: 1rem, 16px. Domyślnie dziedziczy rozmiar tekstu.'
+              pattern: '\d+(\.\d+){0,1}(rem|em|px)'
+
             social_style_note:
               type: separator.note
               class: alert alert-info
