@@ -180,7 +180,7 @@ form:
 
             caption_position:
               type: select.select
-              label: Pozycja caption (9 punktów)
+              label: Pozycja caption — desktop (9 punktów)
               default: bottom-center
               options:
                 top-start: ↖ Góra lewo
@@ -195,9 +195,35 @@ form:
 
             caption_text_align:
               type: select.select
-              label: Wyrównanie tekstu i przycisków
+              label: Wyrównanie tekstu i przycisków — desktop
               default: center
               options:
+                start: Lewo
+                center: Środek
+                end: Prawo
+
+            caption_position_mobile:
+              type: select.select
+              label: Pozycja caption — mobile (≤767px)
+              default: ''
+              options:
+                '': Taka sama jak desktop
+                top-start: ↖ Góra lewo
+                top-center: ↑ Góra środek
+                top-end: ↗ Góra prawo
+                middle-start: ← Środek lewo
+                middle-center: · Środek środek
+                middle-end: → Środek prawo
+                bottom-start: ↙ Dół lewo
+                bottom-center: ↓ Dół środek
+                bottom-end: ↘ Dół prawo
+
+            caption_text_align_mobile:
+              type: select.select
+              label: Wyrównanie tekstu i przycisków — mobile (≤767px)
+              default: ''
+              options:
+                '': Takie same jak desktop
                 start: Lewo
                 center: Środek
                 end: Prawo

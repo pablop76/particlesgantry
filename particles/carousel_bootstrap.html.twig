@@ -30,6 +30,8 @@
 {# Caption — ustawienia globalne #}
 {% set caption_pos    = particle.caption_position|default('bottom-center') %}
 {% set caption_align  = particle.caption_text_align|default('center') %}
+{% set caption_pos_mobile   = particle.caption_position_mobile|default('') %}
+{% set caption_align_mobile = particle.caption_text_align_mobile|default('') %}
 {% set cap_bg_color   = particle.caption_bg_color|default('') %}
 {% set cap_bg_blur    = particle.caption_bg_blur|default('0') %}
 {% set cap_radius         = particle.caption_border_radius|default('0') %}
@@ -59,6 +61,8 @@
 } %}
 {% set cap_valign = cap_valign_map[caption_pos]|default('flex-end') %}
 {% set cap_halign = cap_halign_map[caption_pos]|default('center') %}
+{% set cap_valign_mobile = caption_pos_mobile ? (cap_valign_map[caption_pos_mobile]|default('')) : '' %}
+{% set cap_halign_mobile = caption_pos_mobile ? (cap_halign_map[caption_pos_mobile]|default('')) : '' %}
 
 {# Wyrównanie tekstu i przycisków wewnątrz caption #}
 {% set btn_justify_map = {
@@ -67,6 +71,7 @@
     'end'    : 'flex-end'
 } %}
 {% set btn_justify = btn_justify_map[caption_align]|default('center') %}
+{% set btn_justify_mobile = caption_align_mobile ? (btn_justify_map[caption_align_mobile]|default('')) : '' %}
 
 
 
@@ -120,6 +125,18 @@
     padding: {{ cap_wrapper_padding|e }};
     pointer-events: none;
 }
+{% if cap_valign_mobile or cap_halign_mobile or caption_align_mobile %}
+@media (max-width: 767px) {
+    #{{ carousel_id }} .caption-wrapper {
+        {% if cap_valign_mobile %}align-items: {{ cap_valign_mobile }};{% endif %}
+        {% if cap_halign_mobile %}justify-content: {{ cap_halign_mobile }};{% endif %}
+    }
+    {% if caption_align_mobile %}
+    #{{ carousel_id }} .caption-inner { text-align: {{ caption_align_mobile|e }}; }
+    #{{ carousel_id }} .caption-buttons { justify-content: {{ btn_justify_mobile }}; }
+    {% endif %}
+}
+{% endif %}
 
 /* ── Tło + blur caption — wzorzec glassmorphism ── */
 {% if cap_bg_color %}
