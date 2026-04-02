@@ -70,6 +70,9 @@ form:
                 .image_alt:
                   type: input.text
                   label: Tekst alternatywny obrazu
+                .image_mobile:
+                  type: input.imagepicker
+                  label: Obraz tła — mobile (≤767px, opcjonalny)
                 ._sep_slide_overlay:
                   type: separator.note
                   class: alert alert-info
@@ -573,4 +576,4 @@ form:
     copyright:
       type: separator.note
       class: alert alert-success
-      content: 'Carousel Bootstrap — wersja 1.0 | <a href="https://web-service.com.pl/" target="_blank">pablop76</a>'
+      content: 'Carousel Bootstrap — wersja 1.1 | <a href="https://web-service.com.pl/" target="_blank">pablop76</a>'

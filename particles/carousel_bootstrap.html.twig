@@ -295,11 +295,16 @@
 
             {# Obraz tła slajdu #}
             {% if item.image %}
-            <img src="{{ url(item.image)|e }}"
-                 class="d-block w-100"
-                 alt="{{ item.image_alt|default(item.title)|e }}"
-                 {% if loop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
-                 decoding="async">
+            <picture>
+                {% if item.image_mobile %}
+                <source media="(max-width: 767px)" srcset="{{ url(item.image_mobile)|e }}">
+                {% endif %}
+                <img src="{{ url(item.image)|e }}"
+                     class="d-block w-100"
+                     alt="{{ item.image_alt|default(item.title)|e }}"
+                     {% if loop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                     decoding="async">
+            </picture>
             {% endif %}
 
             {# Overlay — nakładka kolorowa na obraz #}
